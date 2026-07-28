@@ -1,5 +1,5 @@
 from src.config import load_config
-from src.custom_errors import ConfigFileError
+from config.custom_errors import ConfigFileError
 import sys
 
 
