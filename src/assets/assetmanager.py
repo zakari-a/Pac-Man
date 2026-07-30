@@ -96,7 +96,7 @@ class AssetManager():
             self.scared_ghost.append(frames)
 
         self.ghost_eyes = spritesheet.subsurface(
-            pygame.Rect(0 * 16, 320, 32, 32)).copy()
+            pygame.Rect(0, 320, 32, 32)).copy()
 
 
     def _load_items(self) -> None:
@@ -132,5 +132,3 @@ if __name__=="__main__":
     print(assets.scared_ghost)
     print(assets.pacgum)
     print(assets.super_pacgum)
-
-

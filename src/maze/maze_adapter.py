@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from mazegenerator import MazeGenerator
+from ..mazegenerator.mazegenerator import MazeGenerator
 from enum import Enum
 from typing import List
 import os
