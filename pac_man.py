@@ -11,7 +11,7 @@ try:
 except ConfigFileError as e:
     print(e)
     exit(1)
-adapter = MazeAdapter(30, 20, 1)
+adapter = MazeAdapter(14, 10, 1)
 grid = adapter.load()
 pygame.display.init()
 pygame.font.init()
@@ -20,13 +20,22 @@ pygame.display.set_caption("Pac-Man")
 assets = AssetManager(32)
 assets.load()
 render = Renderer(screen, assets, grid)
+try:
+    render._find_spawn()
+except Exception as e:
+    print(e)
 running = True
 while running:
-    screen.fill("grey")
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            render._set_pacmouvements(event.key)
+    render._update_pacposition()
+    screen.fill("black")
     render._draw_maze()
+    render._draw_pacman()
+    render._draw_ghosts()
     pygame.display.flip()
 
 print("end")
