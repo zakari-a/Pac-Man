@@ -12,6 +12,7 @@ class Renderer:
         self.spawn = Tuple[int, int]
         self.direction = None
         self.pac_size = self.tile_size
+        self.counter = 0
 
     def _get_mask(self, x: int, y: int, grid: list[list[Tile]]) -> int:
         max_y = len(grid) - 1
@@ -63,7 +64,8 @@ class Renderer:
     
     def _draw_pacman(self):
         angle = self._get_rotation(self.direction) if self.direction else 0
-        rotated = pygame.transform.rotate(self.assets.pacman[2], angle)
+        rotated = pygame.transform.rotate(self.assets.pacman[self.counter % 4], angle)
+        self.counter += 1
         pacman_sprite = pygame.transform.scale(rotated, (self.tile_size, self.tile_size))
         x,y = self.spawn
         # print(x, y)
