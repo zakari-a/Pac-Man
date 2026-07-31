@@ -24,6 +24,8 @@ class MazeAdapter():
             seed,
         )
         self.grid: List[List[Tile]] = []
+        self.spawn = 0
+        self.corners = []
         
 
     def load(self) -> List[List[Tile]]:
@@ -66,6 +68,15 @@ class MazeAdapter():
         mid_x = (self.width // 2) * 2 + 1 if self.width % 2 == 1 \
             else (self.width // 2) * 2 - 1
         self.grid[mid_y][mid_x] = Tile.SPAWN
+        self.spawn = (mid_x, mid_y)
+        
+        # Set corners in (x, y) format for ghost spawning
+        self.corners = [
+            (1, 1),
+            (adj_w - 2, 1),
+            (1, adj_h - 2),
+            (adj_w - 2, adj_h - 2),
+        ]
         
         return self.grid
     

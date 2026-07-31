@@ -22,6 +22,7 @@ class AssetManager():
         self.pacgum: pygame.Surface
         self.super_pacgum: pygame.Surface
         self.tile_size = tile_size
+        
 
     def _load_walls(self) -> None:
         spritesheet = pygame.image.load("src/assets/wall_assets.png").convert_alpha()
@@ -96,7 +97,7 @@ class AssetManager():
             self.scared_ghost.append(frames)
 
         self.ghost_eyes = spritesheet.subsurface(
-            pygame.Rect(0, 320, 32, 32)).copy()
+            pygame.Rect(0, 320, 16, 16)).copy()
 
 
     def _load_items(self) -> None:
@@ -113,22 +114,3 @@ class AssetManager():
         self._load_pacman()
         self._load_ghosts()
         self._load_items()
-
-
-if __name__=="__main__":
-    pygame.display.init()
-    pygame.font.init()
-    screen = pygame.display.set_mode(
-        (1280, 720), pygame.SCALED)
-    pygame.display.set_caption("Pac-Man")
-
-    assets = AssetManager(32)
-    assets.load()
-    print(assets.pacman)
-    print(assets.pacman_death)
-    print(assets.wall_tiles)
-    print(assets.ghosts)
-    print(assets.ghost_eyes)
-    print(assets.scared_ghost)
-    print(assets.pacgum)
-    print(assets.super_pacgum)
