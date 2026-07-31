@@ -85,7 +85,7 @@ class AssetManager():
             frames = []
             for col in range(4):
                 frames.append(spritesheet.subsurface(
-                pygame.Rect(col * 32, row_idx, 32, 32)).copy())
+                pygame.Rect(col * 32, row_idx * 32, 32, 32)).copy())
             self.ghosts[row] = frames
         
         for row in range(8, 10):
