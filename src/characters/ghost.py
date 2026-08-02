@@ -17,7 +17,6 @@ class Ghost:
         self.frame = 0
         self.anim_frame = 0.0
         self.nb_frames = 3
-        self.grid = grid
 
     def _get_next_pos(self, direction, grid_width, grid_height,
                        cx, cy) -> tuple[int, int]:
@@ -83,15 +82,7 @@ class Ghost:
         elif dy < 0:
             self.direction = Direction.UP
 
-    def move(self, pacposition):
-        cx, cy = round(self.x), round(self.y)
-        w = len(self.grid[0])
-        h = len(self.grid)
-        pacpos_rounded = (round(pacposition[0]), round(pacposition[1]))
-        path = self.find_path(self.corner, pacpos_rounded, self.grid)
-        if len(path) > 1:
-            self._set_direction(path[1], cx, cy)
-
+    def _update_position(self, width, height) -> tuple[float, float]:
         next_x, next_y = self.x, self.y
         if self.direction == Direction.UP:
             next_y -= self.speed
@@ -102,8 +93,56 @@ class Ghost:
         elif self.direction == Direction.RIGHT:
             next_x += self.speed
 
-        next_x %= w
-        next_y %= h
+        next_x %= width
+        next_y %= height
+        return (next_x, next_y)
+
+    def _ghost_chase(self, grid, pacpos, pacdirection) -> tuple[int, int]:
+        width = len(grid[0])
+        height = len(grid)
+        x, y = round(pacpos[0]), round(pacpos[1])
+        if self.type == GhostType.ORANGE:
+            if pacdirection == Direction.UP:
+                y -= 4
+            elif pacdirection == Direction.DOWN:
+                y += 4
+            elif pacdirection == Direction.LEFT:
+                x -= 4
+            elif pacdirection == Direction.RIGHT:
+                x += 4
+        
+        if self.type == GhostType.PINK:
+            if pacdirection == Direction.UP:
+                y += 4
+            elif pacdirection == Direction.DOWN:
+                y -= 4
+            elif pacdirection == Direction.LEFT:
+                x += 4
+            elif pacdirection == Direction.RIGHT:
+                x -= 4
+        
+        if self.type == GhostType.RED:
+            if (self.x - x) ** 2 + (self.y - y) ** 2 < 64:
+                x, y = 1, height - 2
+        x = max(0, min(x, width - 1))
+        y = max(0, min(y, height - 1))
+        return (x, y)            
+
+    def move(self, grid,  pacpos, pacdirection):
+        cx, cy = round(self.x), round(self.y)
+        w = len(grid[0])
+        h = len(grid)
+        
+        is_centered_x = abs(self.x - cx) <= self.speed * 0.50
+        is_centered_y = abs(self.y - cy) <= self.speed * 0.50
+        
+        # pacpos_rounded = (round(pacposition[0]), round(pacposition[1]))
+        px, py = self._ghost_chase(grid, pacpos, pacdirection)
+        path = self.find_path((cx, cy), (px, py), grid)
+        if len(path) > 1 and is_centered_x and is_centered_y:
+            self._set_direction(path[1], cx, cy)
+
+        next_x, next_y = self._update_position(w, h)
 
         acx, acy = cx, cy
         if self.direction == Direction.UP:
@@ -115,7 +154,7 @@ class Ghost:
         elif self.direction == Direction.RIGHT:
             acx = (acx + 1) % w
 
-        if self.grid[acy][acx] == Tile.WALL:
+        if grid[acy][acx] == Tile.WALL:
             if self.direction == Direction.RIGHT and next_x > cx:
                 next_x = float(cx)
             elif self.direction == Direction.LEFT and next_x < cx:

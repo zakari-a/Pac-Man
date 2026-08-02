@@ -13,7 +13,7 @@ try:
 except ConfigFileError as e:
     print(e)
     exit(1)
-adapter = MazeAdapter(5, 5, 1)
+adapter = MazeAdapter(15, 15, 1)
 grid = adapter.load()
 pygame.display.init()
 pygame.font.init()
@@ -47,8 +47,8 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             player._set_pacmouvements(event.key)
-    # for ghost in ghosts:
-    #     ghost.move((player.x, player.y))
+    for ghost in ghosts:
+        ghost.move(grid, (player.x, player.y), player.direction)
     player.move(grid)
     screen.fill("black")
     render._draw_maze()

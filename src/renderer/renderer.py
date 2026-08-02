@@ -92,6 +92,8 @@ class Renderer:
         px = player.x * self.tile_size + self.offset_x
         py = player.y * self.tile_size + self.offset_y
         self.screen.blit(sprite, (px, py))
+        if self.grid[int(player.y)][int(player.x)] in [Tile.PACGUM, Tile.SUPER_PACGUM]:
+            self.grid[int(player.y)][int(player.x)] = Tile.EMPTY
 
     
     def _get_corners(self):

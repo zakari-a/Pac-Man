@@ -18,7 +18,7 @@ class PacMan():
         self.anim_frame = 0.0
         self.direction = Direction.RIGHT
         self.next_direction = Direction.RIGHT
-        self.speed = 0.06
+        self.speed = 0.08
         self.x = float(x)
         self.y = float(y)
 
