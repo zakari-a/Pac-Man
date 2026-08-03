@@ -1,4 +1,4 @@
-from ..maze.maze_adapter import Tile
+from maze.maze_adapter import Tile
 from typing import Tuple
 import pygame
 import random
@@ -12,7 +12,7 @@ class Pacman:
         self.pac_size = self.tile_size
         self.position = Tuple[int, int]
         self.time = pygame.time.get_ticks()
-        self.speed = max(1, tilesize // 12)
+        self.speed = max(1, tilesize // 8)
         self.counter = 0
 
     def _find_spawn(self):
@@ -80,6 +80,7 @@ class Pacman:
             if self.grid[cy // self.tile_size][cx // self.tile_size] == Tile.WALL:
                 return
         self.position = (nx, ny)
+        self.eat()
         
     def _set_pacmouvements(self, key):
         if key == pygame.K_UP:

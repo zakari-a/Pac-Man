@@ -22,6 +22,7 @@ class AssetManager():
         self.pacgum: pygame.Surface
         self.super_pacgum: pygame.Surface
         self.tile_size = tile_size
+        self.font = pygame.font.Font("src/assets/PressStart2P-Regular.ttf", 20)
 
     def _load_walls(self) -> None:
         spritesheet = pygame.image.load("src/assets/wall_assets.png").convert_alpha()

@@ -1,6 +1,6 @@
 import pygame
-from ..maze.maze_adapter import Tile
-from ..entities.entities import Pacman
+from maze.maze_adapter import Tile
+from entities.entities import Pacman
 
 class Renderer:
     def __init__(self, screen, assets, grid):
@@ -52,13 +52,13 @@ class Renderer:
                     figure = pygame.transform.scale(self.assets.wall_tiles[mask], (half, half))
                     self.screen.blit(figure, (tx, ty))
                     if mask & 1:
-                        self.screen.blit(self.assets.wall_tiles[10], (tx, ty - half))
+                        self.screen.blit(self.assets.wall_tiles[5], (tx, ty - half))
                     if mask & 2:
-                        self.screen.blit(self.assets.wall_tiles[5], (tx + half, ty))
+                        self.screen.blit(self.assets.wall_tiles[10], (tx + half, ty))
                     if mask & 4:
-                        self.screen.blit(self.assets.wall_tiles[10], (tx, ty + half))
+                        self.screen.blit(self.assets.wall_tiles[5], (tx, ty + half))
                     if mask & 8:
-                        self.screen.blit(self.assets.wall_tiles[5], (tx - half, ty))
+                        self.screen.blit(self.assets.wall_tiles[10], (tx - half, ty))
                 elif cell == Tile.PACGUM:
                     figure = pygame.transform.scale(self.assets.pacgum, (half, half))
                     self.screen.blit(figure, (tx, ty))
@@ -68,8 +68,8 @@ class Renderer:
                 else:
                     continue
     
-    def _draw_pacman(self, pacman: Pacman):
-        move = pacman._move_frame()
+    def _draw_pacman(self, pacman: Pacman, move):
+        # move = pacman._move_frame()
         if move:
             pacman.counter += 1
         angle = self._get_rotation(pacman.direction) if pacman.direction else 0
@@ -96,18 +96,26 @@ class Renderer:
         corners = [(t, t), ((w - 2) * t, t), (t, (h - 2) * t), ((w - 2) * t, (h - 2) * t)]
         return corners
 
-    def _draw_ghosts(self, ghosts):
+    def _draw_ghosts(self, ghost):
         eye_offset = self.tile_size // 4
-        for ghost in ghosts:
-            ghost._update()
-            figures = self.assets.ghosts
-            scaled_ghosts = pygame.transform.scale(figures[ghost.type][ghost.counter % 4], (self.tile_size, self.tile_size))
-            scaled_eyes = pygame.transform.scale(self.assets.ghost_eyes, (self.tile_size // 2, self.tile_size // 2))
-            x, y = ghost.position
-            self.screen.blit(scaled_ghosts, (x + self.offset_x, y + self.offset_y))
-            self.screen.blit(scaled_eyes, (x + eye_offset + self.offset_x, y + eye_offset + self.offset_y))
+        # for ghost in ghosts:
+        # ghost._update()
+        figures = self.assets.ghosts
+        scaled_ghosts = pygame.transform.scale(figures[ghost.type][ghost.counter % 4], (self.tile_size, self.tile_size))
+        scaled_eyes = pygame.transform.scale(self.assets.ghost_eyes, (self.tile_size // 2, self.tile_size // 2))
+        x, y = ghost.position
+        self.screen.blit(scaled_ghosts, (x + self.offset_x, y + self.offset_y))
+        self.screen.blit(scaled_eyes, (x + eye_offset + self.offset_x, y + eye_offset + self.offset_y))
         
     def _draw_uhd(self):
         hud_text = f"Score: 0   Lives: 3   Level: 1   Time: 5s"
         surface = self.font.render(hud_text, True, (255,255,255))
         self.screen.blit(surface, (10 + self.offset_x, 10 + self.offset_y))
+
+    def run(self, pacman, ghosts) -> None:
+        self._draw_maze()
+        move = pacman._move_frame()
+        self._draw_pacman(pacman, move)
+        for ghost in ghosts:
+            ghost._update()
+            self._draw_ghosts(ghost)

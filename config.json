@@ -9,12 +9,5 @@
 
     "seed": -42,
 
-    "level_max_time": 90,
-
-    "levels": [
-        {
-            "width": 25,
-            "height": 25
-        }
-    ]
+    "level_max_time": 90
 }
