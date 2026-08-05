@@ -115,7 +115,7 @@ class Pacman:
         self.time = pygame.time.get_ticks()
         return 1
     
-    def eat(self):
+    def eat(self, ghosts):
         x = self.position[0] + self.pac_size // 2
         y = self.position[1] + self.pac_size // 2
         gx = x // self.tile_size
@@ -125,6 +125,8 @@ class Pacman:
             if char == Tile.SUPER_PACGUM:
                 self.super = 1
                 self.super_time = pygame.time.get_ticks()
+                for ghost in ghosts:
+                    ghost.was_dead = 0
             self.grid[gy][gx] = Tile.EMPTY
     
     def _go_normal(self):
@@ -140,6 +142,9 @@ class Pacman:
             gx = (pos[0] + self.pac_size // 2) // self.tile_size
             gy = (pos[1] + self.pac_size // 2) // self.tile_size
             if gx == x and y == gy and not self.super:
+                self.state = self.assets.pacman_death
+                return (1, pos)
+            elif gx == x and y == gy and self.super and ghost.was_dead == 1:
                 self.state = self.assets.pacman_death
                 return (1, pos)
             elif gx == x and y == gy and self.super and ghost.alive:

@@ -84,7 +84,7 @@ while running:
                 found.death_start = pygame.time.get_ticks()
         else:
             pacman._update_pacposition()
-            pacman.eat()
+            pacman.eat(ghosts)
             pacman._go_normal()
         render._draw_pacman(pacman)
         render._draw_ghosts(ghosts, pacman, ghosts[0].position)
