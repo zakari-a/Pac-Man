@@ -16,8 +16,9 @@ class AssetManager():
         self.pacman_death: list[pygame.Surface] = []
 
         self.ghosts: dict[GhostType, list[pygame.Surface]] = {}
-        self.scared_ghost: list[list[pygame.Surface]] = []
+        self.scared_ghost: list[pygame.Surface] = []
         self.ghost_eyes: pygame.Surface
+        self.death_eyes: pygame.Surface
 
         self.pacgum: pygame.Surface
         self.super_pacgum: pygame.Surface
@@ -71,13 +72,20 @@ class AssetManager():
 
     def _load_pacman(self) -> None:
         spritesheet = pygame.image.load("src/assets/pacman_assets.png").convert_alpha()
+        tmpr = []
         for i in range(4):
             frame = spritesheet.subsurface(
                 pygame.Rect(i * 32, 0, 32, 32)).copy()
             d_frame = spritesheet.subsurface(
                 pygame.Rect(i * 32, 32, 32, 32)).copy()
+            if i != 3:
+                tmp = spritesheet.subsurface(
+                pygame.Rect(i * 32, 64, 32, 32)).copy()
+                tmpr.append(tmp)
             self.pacman.append(frame)
             self.pacman_death.append(d_frame)
+        for _ in tmpr:
+            self.pacman_death.append(_)
 
     def _load_ghosts(self) -> None:
         spritesheet = pygame.image.load("src/assets/ghosts_assets.png").convert_alpha()
@@ -89,12 +97,11 @@ class AssetManager():
                 pygame.Rect(col * 32, row_idx * 32, 32, 32)).copy())
             self.ghosts[row] = frames
         
-        for row in range(8, 10):
-            frames = []
-            for col in range(4):
-                frames.append(spritesheet.subsurface(
-                    pygame.Rect(col * 32, row, 32, 32)).copy())
-            self.scared_ghost.append(frames)
+        # for row in range(8, 10):
+        # frames = []
+        for col in range(4):
+            self.scared_ghost.append(spritesheet.subsurface(
+                pygame.Rect(col * 32, 9 * 32, 32, 32)).copy())
 
         self.ghost_eyes = spritesheet.subsurface(
             pygame.Rect(0, 320, 16, 16)).copy()

@@ -30,16 +30,16 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "points_per_super_pacgum": 50,
     "points_per_ghost": 200,
     "levels":    [
-        Level(width=15, height=15),
-        Level(width=16, height=16),
-        Level(width=17, height=17),
+        Level(width=10, height=10),
+        Level(width=24, height=24),
         Level(width=18, height=18),
-        Level(width=19, height=19),
         Level(width=20, height=20),
-        Level(width=21, height=21),
-        Level(width=22, height=22),
         Level(width=23, height=23),
-        Level(width=24, height=24)
+        Level(width=15, height=15),
+        Level(width=19, height=19),
+        Level(width=21, height=21),
+        Level(width=17, height=17),
+        Level(width=22, height=22)
     ]
 }
 

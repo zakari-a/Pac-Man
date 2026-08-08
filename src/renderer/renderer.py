@@ -12,6 +12,7 @@ class Renderer:
         self.p_counter = 0
         self.offset_x = 0
         self.offset_y = 0
+        self.mod = len(self.assets.pacman)
 
     def _set_offset(self):
         width = len(self.grid[0]) * self.tile_size
@@ -68,16 +69,40 @@ class Renderer:
                 else:
                     continue
     
-    def _draw_pacman(self, pacman: Pacman, move):
-        # move = pacman._move_frame()
+    def _draw_pacman(self, pacman: Pacman):
+        move = pacman._move_frame()
         if move:
             pacman.counter += 1
         angle = self._get_rotation(pacman.direction) if pacman.direction else 0
-        rotated = pygame.transform.rotate(self.assets.pacman[pacman.counter % 4], angle)
+        rotated = pygame.transform.rotate(pacman.state[pacman.counter % self.mod], angle)
         pacman_sprite = pygame.transform.scale(rotated, (self.tile_size, self.tile_size))
         x,y = pacman.position
         self.screen.blit(pacman_sprite, (x + self.offset_x, y + self.offset_y))
     
+    def _draw_pacman_death(self, pacman: Pacman):
+        pacman.counter = 0
+        self.mod = len(self.assets.pacman_death)
+        pacman.state = self.assets.pacman_death
+        clock = pygame.time.Clock()
+        start = pacman.death_start
+        while pygame.time.get_ticks() - start < 1500:
+            self.screen.fill("black")
+            self._draw_maze()
+            if pacman.counter < 6:
+                self._draw_pacman(pacman)
+            pygame.display.flip()
+            clock.tick(60)
+
+
+    def _draw_game_over_screen(self):
+        font = pygame.font.SysFont(None, 50)
+        small_font = pygame.font.SysFont(None, 30)
+        text = font.render("YOU DIED", True, "red")
+        prompt = small_font.render("Press R to Restart or Q to Quit", True, "white")
+        w, h = self.screen.get_size()
+        self.screen.blit(text, (w // 2 - text.get_width() // 2, h // 2 - 40))
+        self.screen.blit(prompt, (w // 2 - prompt.get_width() // 2, h // 2 + 20))
+
     def _get_rotation(self, direction):
         if direction == (1, 0):   # limen
             return 0
@@ -96,26 +121,30 @@ class Renderer:
         corners = [(t, t), ((w - 2) * t, t), (t, (h - 2) * t), ((w - 2) * t, (h - 2) * t)]
         return corners
 
-    def _draw_ghosts(self, ghost):
+    def _draw_ghosts(self, ghosts, pacman, red_pos):
         eye_offset = self.tile_size // 4
-        # for ghost in ghosts:
-        # ghost._update()
-        figures = self.assets.ghosts
-        scaled_ghosts = pygame.transform.scale(figures[ghost.type][ghost.counter % 4], (self.tile_size, self.tile_size))
-        scaled_eyes = pygame.transform.scale(self.assets.ghost_eyes, (self.tile_size // 2, self.tile_size // 2))
-        x, y = ghost.position
-        self.screen.blit(scaled_ghosts, (x + self.offset_x, y + self.offset_y))
-        self.screen.blit(scaled_eyes, (x + eye_offset + self.offset_x, y + eye_offset + self.offset_y))
-        
+        for ghost in ghosts:
+            ghost._death_time()
+            if not pacman.super:
+                ghost.was_dead = 0
+            frightened = pacman.super and (ghost.was_dead == 0)
+            if frightened:
+                figures = self.assets.scared_ghost
+            else:
+                figures = self.assets.ghosts
+            if ghost.alive:
+                ghost._update(pacman, red_pos)
+                if not frightened:
+                    scaled_ghosts = pygame.transform.scale(figures[ghost.type][ghost.counter % 4], (self.tile_size, self.tile_size))
+                    scaled_eyes = pygame.transform.scale(self.assets.ghost_eyes, (self.tile_size // 2, self.tile_size // 2))
+                else:
+                    scaled_ghosts = pygame.transform.scale(figures[ghost.counter % len(figures)], (self.tile_size, self.tile_size))
+                x, y = ghost.position
+                self.screen.blit(scaled_ghosts, (x + self.offset_x, y + self.offset_y))
+                if not frightened:
+                    self.screen.blit(scaled_eyes, (x + eye_offset + self.offset_x, y + eye_offset + self.offset_y))
+
     def _draw_uhd(self):
         hud_text = f"Score: 0   Lives: 3   Level: 1   Time: 5s"
         surface = self.font.render(hud_text, True, (255,255,255))
         self.screen.blit(surface, (10 + self.offset_x, 10 + self.offset_y))
-
-    def run(self, pacman, ghosts) -> None:
-        self._draw_maze()
-        move = pacman._move_frame()
-        self._draw_pacman(pacman, move)
-        for ghost in ghosts:
-            ghost._update()
-            self._draw_ghosts(ghost)
