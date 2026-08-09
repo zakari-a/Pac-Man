@@ -23,7 +23,7 @@ class Pacman:
         self.pac_size = self.tile_size
         self.position = self.spawn
         self.time = pygame.time.get_ticks()
-        self.speed = max(1, tilesize // 16)
+        self.speed = max(1, round(tilesize / 14))
         self.counter = 0
         self.death_start = 0
         self.super = 0
@@ -138,24 +138,28 @@ class Pacman:
     
     def _go_normal(self):
         c_time = pygame.time.get_ticks()
-        if c_time - self.super_time >= 7000:
+        if c_time - self.super_time >= 20000:
             self.super = 0
             
     def check_collision(self, ghosts):
-        x = (self.position[0] + self.pac_size // 2)// self.tile_size
-        y = (self.position[1] + self.pac_size // 2) // self.tile_size
+        margin = int(self.tile_size * 0.2)
+        px = self.position[0] + margin
+        py = self.position[1] + margin
+        p_size = self.pac_size - margin * 2
         for ghost in ghosts:
+            if not ghost.alive:
+                continue
             pos = ghost.position
-            gx = (pos[0] + self.pac_size // 2) // self.tile_size
-            gy = (pos[1] + self.pac_size // 2) // self.tile_size
-            if gx == x and y == gy and not self.super:
+            g_size = ghost.tile_size - margin * 2
+            gx = pos[0] + margin
+            gy = pos[1] + margin
+            overlapping = (px < gx + g_size and px + p_size > gx and
+                            py < gy + g_size and py + p_size > gy) 
+            if overlapping:
+                if self.super and ghost.was_dead == 0:
+                    return (2, pos)
                 self.state = self.assets.pacman_death
                 return (1, pos)
-            elif gx == x and y == gy and self.super and ghost.was_dead == 1:
-                self.state = self.assets.pacman_death
-                return (1, pos)
-            elif gx == x and y == gy and self.super and ghost.alive:
-                return (2, pos)
         return (0, (-1, -1))
 
 class Ghost:
@@ -168,16 +172,18 @@ class Ghost:
         self.position = corner
         self.counter = 0
         self.direction = (0, 0)
-        self.speed = max(1, self.tile_size // 14)
+        self.speed = max(1, round(self.tile_size / 20))
         self.alive = True
         self.death_start = 0
         self.was_dead = 0
+        self.one_turn = False
 
     def _reset(self):
         self.counter = 0
         self.death_start = 0
         self.direction = (0, 0)
         self.position = self.base_corner
+        self.alive = True
 
     def _get_position(self):
         return self.position
@@ -262,17 +268,20 @@ class Ghost:
     def _death_time(self):
         if not self.alive:
             c_time = pygame.time.get_ticks()
-            if c_time - self.death_start >= 3000:
+            if c_time - self.death_start >= 10000:
                 self.alive = True
 
-    def _choose_cheapest(self, directions, dist_map):
+    def _choose_cheapest(self, directions, dist_map, turn):
         x, y = self.position
-        reverse = (-self.direction[0], -self.direction[1])
-        normal = [d for d in directions if d != reverse]
-        final = normal if normal else directions
-        b_direction = final[0]
+        if not turn:
+            reverse = (-self.direction[0], -self.direction[1])
+            normal = [d for d in directions if d != reverse]
+            directions = normal if normal else directions
+            # self.one_turn = 0
+        # elif frightened and self.one_turn == 1
+        b_direction = directions[0]
         b_distance = float('inf')
-        for direction in final:
+        for direction in directions:
             dx, dy = direction
             nx = (x + dx * self.tile_size) // self.tile_size
             ny = (y + dy * self.tile_size) // self.tile_size
@@ -282,10 +291,10 @@ class Ghost:
                 b_direction = direction 
         return [b_direction] if b_direction else []
 
-    def _choose_direction(self, dist_map):
+    def _choose_direction(self, dist_map, turn):
         valids = self._valid_directions()
         if len(valids) > 1:
-            valids = self._choose_cheapest(valids, dist_map)
+            valids = self._choose_cheapest(valids, dist_map, turn)
         if valids:
             self.direction = valids[0]
 
@@ -299,8 +308,16 @@ class Ghost:
         x, y = self.position
         if x % self.tile_size == 0 and y % self.tile_size == 0:
             dist_map = self.pathfinder(pacman, red_pos)
-            self._choose_direction(dist_map)
-        # self._move()
+            frightened = pacman.super and (self.was_dead == 0)
+            if not frightened:
+                self.one_turn = False
+                turn = False
+            else:
+                turn = not self.one_turn
+                if turn:
+                    self.one_turn = True
+            self._choose_direction(dist_map, turn)
+        self._move()
         self._move_frame()
     
     def _chase_type(self, pacman, red_pos):
@@ -370,3 +387,8 @@ class Ghost:
                     visited.add(neighbour)
                     result[(neighbour)] = distance + 1
         return result
+
+    def _update_state(self, pacman):
+        self._death_time()
+        if not pacman.super:
+            self.was_dead = 0

@@ -93,7 +93,6 @@ class Renderer:
             pygame.display.flip()
             clock.tick(60)
 
-
     def _draw_game_over_screen(self):
         font = pygame.font.SysFont(None, 50)
         small_font = pygame.font.SysFont(None, 30)
@@ -124,9 +123,6 @@ class Renderer:
     def _draw_ghosts(self, ghosts, pacman, red_pos):
         eye_offset = self.tile_size // 4
         for ghost in ghosts:
-            ghost._death_time()
-            if not pacman.super:
-                ghost.was_dead = 0
             frightened = pacman.super and (ghost.was_dead == 0)
             if frightened:
                 figures = self.assets.scared_ghost

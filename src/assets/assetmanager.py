@@ -101,11 +101,10 @@ class AssetManager():
                 pygame.Rect(col * 32, row_idx * 32, 32, 32)).copy())
             self.ghosts[row] = frames
         
-        # for row in range(8, 10):
-        # frames = []
-        for col in range(4):
-            self.scared_ghost.append(spritesheet.subsurface(
-                pygame.Rect(col * 32, 9 * 32, 32, 32)).copy())
+        for row in range(8, 10):
+            for col in range(4):
+                self.scared_ghost.append(spritesheet.subsurface(
+                    pygame.Rect(col * 32, row * 32, 32, 32)).copy())
 
         self.ghost_eyes = spritesheet.subsurface(
             pygame.Rect(0, 320, 16, 16)).copy()

@@ -409,7 +409,6 @@ class GameEngine():
             self.game_state = GameState.FINISHED
             self.done = False
 
-        self.pacman._update_pacposition()
         self.screen.fill("black")
         self.renderer._draw_maze()
         # self.renderer._draw_pacman(self.pacman)
@@ -418,12 +417,11 @@ class GameEngine():
         if self._check_empty_grid():
             self.level_num += 1
             self._init_level()
-            self.game_state = GameState.VICTORY
-
             
         if self.pacman.mode == PacState.ALIVE:
             self._eat()
-            # print("here")
+            for ghost in self.ghosts:
+                ghost._update_state(self.pacman)
             collision, pos = self.pacman.check_collision(self.ghosts)
             if collision == 1:
                 self.pacman.death_start = pygame.time.get_ticks()
@@ -448,8 +446,6 @@ class GameEngine():
                 self.pacman._go_normal()
             self.renderer._draw_pacman(self.pacman)
             self.renderer._draw_ghosts(self.ghosts, self.pacman, self.ghosts[0].position)
-            for ghost in self.ghosts:
-                ghost._move()
 
         elif self.pacman.mode == PacState.DYING:
             # print("here")
