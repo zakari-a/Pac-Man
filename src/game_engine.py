@@ -124,6 +124,14 @@ class GameEngine():
         self.supergum_points = configs.points_per_super_pacgum
         self.corners = []
         self._init_level()
+
+        # banner vars
+        self.scale = 0.4
+        self.shrink_x = 1
+        self.shrink_y = 2
+        self.target_width = self.width * self.shrink_x
+        self.target_height = self.height / self.shrink_y
+
         
     def _init_level(self) -> None:
         if self.level_num >= len(self.levels):
@@ -163,6 +171,7 @@ class GameEngine():
 
     
     def _menu(self) -> None: 
+        self.lives = self.configs.lives
         spacing = 0.50
         start_x = self.width * 0.10
         start_y = self.height * spacing        
@@ -327,6 +336,7 @@ class GameEngine():
             for tile in row:
                 if tile == Tile.PACGUM or tile == Tile.SUPER_PACGUM:
                     return False
+        self.game_state = GameState.VICTORY
         return True    
 
 
@@ -352,6 +362,47 @@ class GameEngine():
                 spacing += 0.05
             start_y = self.height * spacing
 
+    def _victory(self) -> None:
+        self._move_frame()
+        self.renderer._draw_maze()
+        banner = self.assets.victory
+        overlay = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+        pygame.draw.rect(overlay, (0, 0, 0, 170), overlay.get_rect(), border_radius=50)
+        self.screen.blit(overlay, (0, 0))
+        center_x, center_y = self.screen.get_rect().center
+        if self.counter < 7:
+            if self.shrink_x > 0.6 and self.shrink_y < 5.5:
+                self.shrink_x -= 0.01
+                self.shrink_y += 0.08
+                self.target_width = self.width * self.shrink_x
+                self.target_height = self.height / self.shrink_y
+
+            banner = pygame.transform.smoothscale(banner, (self.target_width, self.target_height))
+            banner_rect = banner.get_rect(center=(center_x, center_y - 200))
+            self.screen.blit(banner, banner_rect)
+            if self.shrink_x <= 0.6:
+                labels = [
+                    ("YOUR CURRENT SCORE IS:", self.menu_font),
+                    (f"{self.score}", self.instuctions_font),
+                    ("NEXT LEVEL WILL START IN:", self.menu_font),
+                    (f"{7 - self.counter}", self.instuctions_font)
+                ]
+
+                pos = [-75, -0, 75, 150]
+                for i, (key, value) in enumerate(labels):
+                    label = value.render(key, True, "white")
+                    label_rect = label.get_rect(center=(center_x , center_y + pos[i]))
+                    self.screen.blit(label, label_rect)
+    
+        if self.counter == 7:
+            banner = pygame.transform.smoothscale(banner, (self.target_width, self.target_height))
+            banner_rect = banner.get_rect(center=(center_x, center_y - 40))
+            self.screen.blit(banner, banner_rect)
+            self.game_state = GameState.PLAYING
+            self.shrink_x = 1
+            self.shrink_y = 2
+            self.counter = 0
+        
 
     def _play(self) -> None:
         if self.level_timer == 0:
@@ -367,6 +418,8 @@ class GameEngine():
         if self._check_empty_grid():
             self.level_num += 1
             self._init_level()
+            self.game_state = GameState.VICTORY
+
             
         if self.pacman.mode == PacState.ALIVE:
             self._eat()
@@ -590,38 +643,42 @@ class GameEngine():
 
     def _move_frame(self):
         c_time = pygame.time.get_ticks()
-        if c_time - self.frame_tick >= 300:
+        if c_time - self.frame_tick >= 1000:
             self.counter += 1
             self.frame_tick = pygame.time.get_ticks()
 
 
     def _game_over(self) -> None:
         self._move_frame()
-        text = "GAME OVER"
-        color = "red"
+        banner = self.assets.game_over
         if self.done:
-            text = "GOOD JOB"
-            color = "yellow"
+            banner = self.assets.finish
         self.renderer._draw_maze()
-        box_rect = pygame.Rect(0, self.height * 0.40, 
-                               self.width, self.height * 0.15)
-        pygame.draw.rect(self.screen, "black", box_rect)
-        if self.counter <= len(text):
-            spacing = 0.35
-            start_x = self.width * spacing
-            start_y = self.height * 0.45
-            for i in range(self.counter):
-                label = self.instuctions_font.render(text[i], True, color)
-                self.screen.blit(label, (start_x, start_y))
-                spacing += 0.03
-                start_x = self.width * spacing
+        overlay = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+        pygame.draw.rect(overlay, (0, 0, 0, 170), overlay.get_rect(), border_radius=50)
+        self.screen.blit(overlay, (0, 0))
+        # target_width = self.width * 0.4
+        # target_height = self.height / 5.5
+        center_x, center_y = self.screen.get_rect().center
+        if self.counter < 4:
+            if self.shrink_x > 0.6 and self.shrink_y < 5.5:
+                self.shrink_x -= 0.01
+                self.shrink_y += 0.08
+                self.target_width = self.width * self.shrink_x
+                self.target_height = self.height / self.shrink_y
 
-        # print(self.counter)
-        label = self.instuctions_font.render(text, True, color)
-
-        if self.counter >= 10:
-            self.screen.blit(label, (self.width * 0.35, self.height * 0.45))
+            banner = pygame.transform.smoothscale(banner, (self.target_width, self.target_height))
+            banner_rect = banner.get_rect(center=(center_x, center_y - 40))
+            self.screen.blit(banner, banner_rect)
+    
+        if self.counter == 4:
+            banner = pygame.transform.smoothscale(banner, (self.target_width, self.target_height))
+            banner_rect = banner.get_rect(center=(center_x, center_y - 40))
+            self.screen.blit(banner, banner_rect)
             self.game_state = GameState.FINISHED
+            self.shrink_x = 1
+            self.shrink_y = 2
+            self.counter = 0
 
 
     def _finished(self) -> None:
@@ -716,6 +773,9 @@ class GameEngine():
                     # self._handle_paused_input()
             elif self.game_state == GameState.GAME_OVER:
                 self._game_over()
+
+            elif self.game_state == GameState.VICTORY:
+                self._victory()
 
             elif self.game_state == GameState.FINISHED:
                 self.screen.blit(self.commands_background, (0, 0))

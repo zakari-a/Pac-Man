@@ -24,6 +24,9 @@ class AssetManager():
         self.super_pacgum: pygame.Surface
         self.tile_size = tile_size
         self.font = pygame.font.Font("src/assets/PressStart2P-Regular.ttf", 20)
+        self.victory: pygame.Surface
+        self.game_over: pygame.Surface
+        self.finish: pygame.Surface
 
     def _load_walls(self) -> None:
         spritesheet = pygame.image.load("src/assets/wall_assets.png").convert_alpha()
@@ -62,6 +65,7 @@ class AssetManager():
         }
 
         small_size = self.tile_size // 2
+
         for mask, (img_key, angle) in mask_map.items():
             img = bases[img_key]
             if angle != 0:
@@ -116,12 +120,30 @@ class AssetManager():
             pygame.Rect(pygame.Rect(16, 16, 16, 16)).copy()
         )
 
+    def _load_images(self) -> None:
+        spritesheet = pygame.image.load("src/assets/victory.png").convert_alpha()
+        self.victory = spritesheet.subsurface(
+            pygame.Rect(pygame.Rect(40, 325, 1450, 345)).copy()
+            )
+
+        spritesheet = pygame.image.load("src/assets/banners.png").convert_alpha()
+        self.game_over = spritesheet.subsurface(
+            pygame.Rect(pygame.Rect(80, 140, 1380, 340)).copy()
+            )
+        self.finish = spritesheet.subsurface(
+            pygame.Rect(pygame.Rect(80, 560, 1380, 340)).copy()
+            )        
+
+
+
+
     def load(self) -> None:
         self._load_walls()
         self._load_pacman()
         self._load_ghosts()
         self._load_items()
-
+        self._load_images()
+        
 
 if __name__=="__main__":
     pygame.display.init()
