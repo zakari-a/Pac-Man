@@ -68,39 +68,3 @@ class MazeAdapter():
         self.grid[mid_y][mid_x] = Tile.SPAWN
         
         return self.grid
-    
-    def _get_char(self, val: int) -> str:
-        """Map a grid value to a single printable character."""
-        if val == Tile.WALL:
-            return "#"
-        if val == Tile.PACGUM:
-            return "."
-        if val == Tile.SUPER_PACGUM:
-            return "o"
-        if val == Tile.SPAWN:
-            return "P"
-        return " "
-
-    def render(self) -> None:
-        """Print the maze in the terminal (debugging helper only)."""
-        os.system("cls" if os.name == "nt" else "clear")
-        reset = "\033[0m"
-        colors = {
-            4: "\033[92m",
-            1: "\033[94m",
-            2: "\033[97m",
-            3: "\033[93m",
-        }
-        for row in self.grid:
-            line = ""
-            for cell in row:
-                color = colors.get(cell, reset)
-                line += f"{color}{self._get_char(cell)}{reset}"
-            print(line)
-
-
-
-if __name__ == "__main__":
-    mzadp = MazeAdapter(15, 15, 0)
-    maze = mzadp.load()
-    mzadp.render()

@@ -7,8 +7,15 @@
 
     "points_per_ghost": 200,
 
-    "seed": -42,
+    "seed": 42,
 
-    "level_max_time": 90
+    "level_max_time": 90,
+
+    "levels": [
+        {
+            "width": 5,
+            "height": 5
+        }
+    ]
 
 }

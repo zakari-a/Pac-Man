@@ -23,7 +23,7 @@ class Pacman:
         self.pac_size = self.tile_size
         self.position = self.spawn
         self.time = pygame.time.get_ticks()
-        self.speed = max(1, round(tilesize / 14))
+        self.speed = max(1, round(tilesize / 8))
         self.counter = 0
         self.death_start = 0
         self.super = 0
@@ -122,7 +122,8 @@ class Pacman:
         self.time = pygame.time.get_ticks()
         return 1
     
-    def eat(self, ghosts):
+    def eat(self, ghosts, pacgum_points, supergum_points) -> int:
+        score = 0
         x = self.position[0] + self.pac_size // 2
         y = self.position[1] + self.pac_size // 2
         gx = x // self.tile_size
@@ -134,7 +135,12 @@ class Pacman:
                 self.super_time = pygame.time.get_ticks()
                 for ghost in ghosts:
                     ghost.was_dead = 0
+            elif char == Tile.PACGUM:
+                score += pacgum_points
+            elif char == Tile.SUPER_PACGUM:
+                score += supergum_points
             self.grid[gy][gx] = Tile.EMPTY
+        return score
     
     def _go_normal(self):
         c_time = pygame.time.get_ticks()

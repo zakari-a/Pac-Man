@@ -23,10 +23,14 @@ class AssetManager():
         self.pacgum: pygame.Surface
         self.super_pacgum: pygame.Surface
         self.tile_size = tile_size
-        self.font = pygame.font.Font("src/assets/PressStart2P-Regular.ttf", 20)
+        self.font_10 = pygame.font.Font("src/assets/PressStart2P-Regular.ttf", 10)
+        self.font_20 = pygame.font.Font("src/assets/PressStart2P-Regular.ttf", 20)
+        self.font_35 = pygame.font.Font("src/assets/PressStart2P-Regular.ttf", 35)
         self.victory: pygame.Surface
         self.game_over: pygame.Surface
         self.finish: pygame.Surface
+        self.background1 = pygame.image.load("src/assets/pacman-backgroud.png").convert_alpha()
+        self.background2 = pygame.image.load("src/assets/commands_background.jpeg").convert_alpha()
 
     def _load_walls(self) -> None:
         spritesheet = pygame.image.load("src/assets/wall_assets.png").convert_alpha()
@@ -133,31 +137,9 @@ class AssetManager():
             pygame.Rect(pygame.Rect(80, 560, 1380, 340)).copy()
             )        
 
-
-
-
     def load(self) -> None:
         self._load_walls()
         self._load_pacman()
         self._load_ghosts()
         self._load_items()
         self._load_images()
-        
-
-if __name__=="__main__":
-    pygame.display.init()
-    pygame.font.init()
-    screen = pygame.display.set_mode(
-        (1280, 720), pygame.SCALED)
-    pygame.display.set_caption("Pac-Man")
-
-    assets = AssetManager(32)
-    assets.load()
-    print(assets.pacman)
-    print(assets.pacman_death)
-    print(assets.wall_tiles)
-    print(assets.ghosts)
-    print(assets.ghost_eyes)
-    print(assets.scared_ghost)
-    print(assets.pacgum)
-    print(assets.super_pacgum)
