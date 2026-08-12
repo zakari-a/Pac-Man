@@ -1,10 +1,9 @@
 from maze.maze_adapter import Tile
 from assets.assetmanager import GhostType
-from typing import Tuple
 from collections import deque
 from enum import Enum
 import pygame
-import random
+
 
 class PacState(Enum):
     DYING = 0
@@ -46,7 +45,7 @@ class Pacman:
                     self.spawn = (x * self.tile_size, y * self.tile_size)
                     return
         raise ValueError("No spawn tile found in maze")
-    
+
     def _fast_mouvements(self):
         direction = self.direction
         if self.direction == (0, -1) and self.next_direction == (0, +1):
@@ -99,12 +98,16 @@ class Pacman:
         nx = x + (dx * speed)
         ny = y + (dy * speed)
         size = self.pac_size
-        corners = [(nx, ny), (nx + size - 1, ny), (nx, ny + size - 1), (nx + size - 1, ny + size - 1)]
+        corners = [
+            (nx, ny), (nx + size - 1, ny),
+            (nx, ny + size - 1), (nx + size - 1, ny + size - 1)]
         for cx, cy in corners:
-            if self.grid[cy // self.tile_size][cx // self.tile_size] == Tile.WALL:
+            px = cx // self.tile_size
+            py = cy // self.tile_size
+            if self.grid[py][px] == Tile.WALL:
                 return
         self.position = (nx, ny)
-        
+
     def _set_pacmouvements(self, key):
         if key == pygame.K_UP:
             self.next_direction = (0, -1)
@@ -121,7 +124,7 @@ class Pacman:
             return 0
         self.time = pygame.time.get_ticks()
         return 1
-    
+
     def eat(self, ghosts, pacgum_points, supergum_points) -> int:
         score = 0
         x = self.position[0] + self.pac_size // 2
@@ -133,20 +136,19 @@ class Pacman:
             if char == Tile.SUPER_PACGUM:
                 self.super = 1
                 self.super_time = pygame.time.get_ticks()
+                score += supergum_points
                 for ghost in ghosts:
                     ghost.was_dead = 0
             elif char == Tile.PACGUM:
                 score += pacgum_points
-            elif char == Tile.SUPER_PACGUM:
-                score += supergum_points
             self.grid[gy][gx] = Tile.EMPTY
         return score
-    
+
     def _go_normal(self):
         c_time = pygame.time.get_ticks()
-        if c_time - self.super_time >= 20000:
+        if c_time - self.super_time >= 10000:
             self.super = 0
-            
+
     def check_collision(self, ghosts):
         margin = int(self.tile_size * 0.2)
         px = self.position[0] + margin
@@ -159,14 +161,15 @@ class Pacman:
             g_size = ghost.tile_size - margin * 2
             gx = pos[0] + margin
             gy = pos[1] + margin
-            overlapping = (px < gx + g_size and px + p_size > gx and
-                            py < gy + g_size and py + p_size > gy) 
+            overlapping = (px < gx + g_size and px + p_size > gx
+                           and py < gy + g_size and py + p_size > gy)
             if overlapping:
                 if self.super and ghost.was_dead == 0:
                     return (2, pos)
                 self.state = self.assets.pacman_death
                 return (1, pos)
         return (0, (-1, -1))
+
 
 class Ghost:
     def __init__(self, g_type, corner, grid, assets):
@@ -195,23 +198,23 @@ class Ghost:
         return self.position
 
     def _get_speed(self):
-            x, y = self.position
-            t = self.tile_size
-            if self.direction == (0, -1) or self.direction == (-1, 0):
-                if self.direction == (0, -1):
-                    distance = y % t
-                else:
-                    distance = x % t
+        x, y = self.position
+        t = self.tile_size
+        if self.direction == (0, -1) or self.direction == (-1, 0):
+            if self.direction == (0, -1):
+                distance = y % t
             else:
-                if self.direction == (0, 1):
-                    distance = t - (y % t)
-                else:
-                    distance = t - (x % t)
-            if distance == 0:
-                distance = t
-            if distance >= self.speed:
-                return self.speed
-            return distance
+                distance = x % t
+        else:
+            if self.direction == (0, 1):
+                distance = t - (y % t)
+            else:
+                distance = t - (x % t)
+        if distance == 0:
+            distance = t
+        if distance >= self.speed:
+            return self.speed
+        return distance
 
     def _can_move(self, direction):
         if direction == (0, 0):
@@ -222,7 +225,8 @@ class Ghost:
         tx = x + dx * speed
         ty = y + dy * speed
         size = self.tile_size
-        corners = [(tx, ty), (tx + size - 1, ty), (tx, ty + size - 1), (tx + size - 1, ty + size - 1)]
+        corners = [(tx, ty), (tx + size - 1, ty),
+                   (tx, ty + size - 1), (tx + size - 1, ty + size - 1)]
         for corner in corners:
             cx, cy = corner
             if self.grid[cy // size][cx // size] == Tile.WALL:
@@ -274,7 +278,7 @@ class Ghost:
     def _death_time(self):
         if not self.alive:
             c_time = pygame.time.get_ticks()
-            if c_time - self.death_start >= 10000:
+            if c_time - self.death_start >= 6000:
                 self.alive = True
 
     def _choose_cheapest(self, directions, dist_map, turn):
@@ -294,7 +298,7 @@ class Ghost:
             distance = dist_map.get((nx, ny), float('inf'))
             if distance < b_distance:
                 b_distance = distance
-                b_direction = direction 
+                b_direction = direction
         return [b_direction] if b_direction else []
 
     def _choose_direction(self, dist_map, turn):
@@ -325,7 +329,7 @@ class Ghost:
             self._choose_direction(dist_map, turn)
         self._move()
         self._move_frame()
-    
+
     def _chase_type(self, pacman, red_pos):
         px = pacman.position[0] // self.tile_size
         py = pacman.position[1] // self.tile_size
@@ -343,7 +347,8 @@ class Ghost:
                 if distance > 64:
                     return (px, py)
                 else:
-                    return (self.base_corner[0] // self.tile_size, self.base_corner[1] // self.tile_size)
+                    return (self.base_corner[0] // self.tile_size,
+                            self.base_corner[1] // self.tile_size)
             elif self.type == GhostType.BLUE:
                 rx = red_pos[0] // self.tile_size
                 ry = red_pos[1] // self.tile_size
@@ -353,7 +358,8 @@ class Ghost:
                 target_y = ry + 2 * (ref_py - ry)
                 return (target_x, target_y)
         else:
-            return (self.base_corner[0] // self.tile_size, self.base_corner[1] // self.tile_size)
+            return (self.base_corner[0] // self.tile_size,
+                    self.base_corner[1] // self.tile_size)
         return (px, py)
 
     def _get_neighbours(self, position):
@@ -379,7 +385,8 @@ class Ghost:
         w = len(grid[0])
         x, y = start_point
         if (x < 0 or x >= w) or (y < 0 or y >= h) or grid[y][x] == Tile.WALL:
-            start_point = (pacman.position[0] // self.tile_size, pacman.position[1] // self.tile_size)
+            start_point = (pacman.position[0] // self.tile_size,
+                           pacman.position[1] // self.tile_size)
         visited = {start_point}
         queue = deque([start_point])
         result = {start_point: 0}

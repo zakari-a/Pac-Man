@@ -8,6 +8,7 @@ class GhostType(Enum):
     PINK = 2
     ORANGE = 3
 
+
 class AssetManager():
     def __init__(self, tile_size):
         self.wall_tiles: dict[int, pygame.Surface] = {}
@@ -23,17 +24,25 @@ class AssetManager():
         self.pacgum: pygame.Surface
         self.super_pacgum: pygame.Surface
         self.tile_size = tile_size
-        self.font_10 = pygame.font.Font("src/assets/PressStart2P-Regular.ttf", 10)
-        self.font_20 = pygame.font.Font("src/assets/PressStart2P-Regular.ttf", 20)
-        self.font_35 = pygame.font.Font("src/assets/PressStart2P-Regular.ttf", 35)
+        self.font_10 = pygame.font.Font(
+            "src/assets/PressStart2P-Regular.ttf", 10)
+        self.font_15 = pygame.font.Font(
+            "src/assets/PressStart2P-Regular.ttf", 15)
+        self.font_20 = pygame.font.Font(
+            "src/assets/PressStart2P-Regular.ttf", 20)
+        self.font_35 = pygame.font.Font(
+            "src/assets/PressStart2P-Regular.ttf", 35)
         self.victory: pygame.Surface
         self.game_over: pygame.Surface
         self.finish: pygame.Surface
-        self.background1 = pygame.image.load("src/assets/pacman-backgroud.png").convert_alpha()
-        self.background2 = pygame.image.load("src/assets/commands_background.jpeg").convert_alpha()
+        self.background1 = pygame.image.load(
+            "src/assets/pacman-backgroud.png").convert_alpha()
+        self.background2 = pygame.image.load(
+            "src/assets/commands_background.jpeg").convert_alpha()
 
     def _load_walls(self) -> None:
-        spritesheet = pygame.image.load("src/assets/wall_assets.png").convert_alpha()
+        spritesheet = pygame.image.load(
+            "src/assets/wall_assets.png").convert_alpha()
         bases = {
             "wall":       spritesheet.subsurface(
                 pygame.Rect(64, 48, 16, 16)).copy(),
@@ -79,7 +88,8 @@ class AssetManager():
             )
 
     def _load_pacman(self) -> None:
-        spritesheet = pygame.image.load("src/assets/pacman_assets.png").convert_alpha()
+        spritesheet = pygame.image.load(
+            "src/assets/pacman_assets.png").convert_alpha()
         tmpr = []
         for i in range(4):
             frame = spritesheet.subsurface(
@@ -87,8 +97,8 @@ class AssetManager():
             d_frame = spritesheet.subsurface(
                 pygame.Rect(i * 32, 32, 32, 32)).copy()
             if i != 3:
-                tmp = spritesheet.subsurface(
-                pygame.Rect(i * 32, 64, 32, 32)).copy()
+                tmp = spritesheet.subsurface(pygame.Rect(
+                    i * 32, 64, 32, 32)).copy()
                 tmpr.append(tmp)
             self.pacman.append(frame)
             self.pacman_death.append(d_frame)
@@ -96,15 +106,18 @@ class AssetManager():
             self.pacman_death.append(_)
 
     def _load_ghosts(self) -> None:
-        spritesheet = pygame.image.load("src/assets/ghosts_assets.png").convert_alpha()
-        types = [GhostType.RED, GhostType.BLUE, GhostType.PINK, GhostType.ORANGE]
+        spritesheet = pygame.image.load(
+            "src/assets/ghosts_assets.png").convert_alpha()
+        types = [
+            GhostType.RED, GhostType.BLUE, GhostType.PINK, GhostType.ORANGE]
         for row_idx, row in enumerate(types):
             frames = []
             for col in range(4):
-                frames.append(spritesheet.subsurface(
-                pygame.Rect(col * 32, row_idx * 32, 32, 32)).copy())
+                frames.append(
+                    spritesheet.subsurface(
+                        pygame.Rect(col * 32, row_idx * 32, 32, 32)).copy())
             self.ghosts[row] = frames
-        
+
         for row in range(8, 10):
             for col in range(4):
                 self.scared_ghost.append(spritesheet.subsurface(
@@ -112,7 +125,6 @@ class AssetManager():
 
         self.ghost_eyes = spritesheet.subsurface(
             pygame.Rect(0, 320, 16, 16)).copy()
-
 
     def _load_items(self) -> None:
         spritesheet = pygame.image.load("src/assets/items_assets.png")
@@ -124,18 +136,19 @@ class AssetManager():
         )
 
     def _load_images(self) -> None:
-        spritesheet = pygame.image.load("src/assets/victory.png").convert_alpha()
+        spritesheet = pygame.image.load(
+            "src/assets/victory.png").convert_alpha()
         self.victory = spritesheet.subsurface(
             pygame.Rect(pygame.Rect(40, 325, 1450, 345)).copy()
             )
-
-        spritesheet = pygame.image.load("src/assets/banners.png").convert_alpha()
+        spritesheet = pygame.image.load(
+            "src/assets/banners.png").convert_alpha()
         self.game_over = spritesheet.subsurface(
             pygame.Rect(pygame.Rect(80, 140, 1380, 340)).copy()
             )
         self.finish = spritesheet.subsurface(
             pygame.Rect(pygame.Rect(80, 560, 1380, 340)).copy()
-            )        
+            )
 
     def load(self) -> None:
         self._load_walls()

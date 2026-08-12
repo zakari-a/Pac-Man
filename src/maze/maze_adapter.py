@@ -1,8 +1,7 @@
-from dataclasses import dataclass
 from mazegenerator.mazegenerator import MazeGenerator
 from enum import Enum
 from typing import List
-import os
+
 
 class Tile(Enum):
     WALL = 0
@@ -13,7 +12,7 @@ class Tile(Enum):
 
 
 class MazeAdapter():
-    def __init__(self, width: int, height:int, seed: int) -> None:
+    def __init__(self, width: int, height: int, seed: int) -> None:
         self.width = width
         self.height = height
         self._generator = MazeGenerator(
@@ -24,7 +23,6 @@ class MazeAdapter():
             seed,
         )
         self.grid: List[List[Tile]] = []
-        
 
     def load(self) -> List[List[Tile]]:
         adj_h = self.height * 2 + 1
@@ -66,5 +64,5 @@ class MazeAdapter():
         mid_x = (self.width // 2) * 2 + 1 if self.width % 2 == 1 \
             else (self.width // 2) * 2 - 1
         self.grid[mid_y][mid_x] = Tile.SPAWN
-        
+
         return self.grid

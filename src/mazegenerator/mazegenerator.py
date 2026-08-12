@@ -4,7 +4,6 @@ from typing import Iterator
 
 
 class MazeGenerator:
-
     def __init__(self, size: tuple[int, int] = (15, 15), perfect: bool = False,
                  entry_cell: tuple[int, int] = (0, 0),
                  exit_cell: tuple[int, int] = (-1, -1),

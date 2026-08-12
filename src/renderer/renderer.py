@@ -2,6 +2,7 @@ import pygame
 from maze.maze_adapter import Tile
 from entities.entities import Pacman
 
+
 class Renderer:
     def __init__(self, screen, assets, grid):
         self.screen = screen
@@ -50,35 +51,45 @@ class Renderer:
                 ty = py + center_offset
                 if cell == Tile.WALL:
                     mask = self._get_mask(x, y, self.grid)
-                    figure = pygame.transform.scale(self.assets.wall_tiles[mask], (half, half))
+                    figure = pygame.transform.scale(
+                        self.assets.wall_tiles[mask], (half, half))
                     self.screen.blit(figure, (tx, ty))
                     if mask & 1:
-                        self.screen.blit(self.assets.wall_tiles[5], (tx, ty - half))
+                        self.screen.blit(
+                            self.assets.wall_tiles[5], (tx, ty - half))
                     if mask & 2:
-                        self.screen.blit(self.assets.wall_tiles[10], (tx + half, ty))
+                        self.screen.blit(
+                            self.assets.wall_tiles[10], (tx + half, ty))
                     if mask & 4:
-                        self.screen.blit(self.assets.wall_tiles[5], (tx, ty + half))
+                        self.screen.blit(
+                            self.assets.wall_tiles[5], (tx, ty + half))
                     if mask & 8:
-                        self.screen.blit(self.assets.wall_tiles[10], (tx - half, ty))
+                        self.screen.blit(
+                            self.assets.wall_tiles[10], (tx - half, ty))
                 elif cell == Tile.PACGUM:
-                    figure = pygame.transform.scale(self.assets.pacgum, (half, half))
+                    figure = pygame.transform.scale(
+                        self.assets.pacgum, (half, half))
                     self.screen.blit(figure, (tx, ty))
                 elif cell == Tile.SUPER_PACGUM:
-                    figure = pygame.transform.scale(self.assets.super_pacgum, (half, half))
+                    figure = pygame.transform.scale(
+                        self.assets.super_pacgum, (half, half))
                     self.screen.blit(figure, (tx, ty))
                 else:
                     continue
-    
+
     def _draw_pacman(self, pacman: Pacman):
         move = pacman._move_frame()
         if move:
             pacman.counter += 1
-        angle = self._get_rotation(pacman.direction) if pacman.direction else 0
-        rotated = pygame.transform.rotate(pacman.state[pacman.counter % self.mod], angle)
-        pacman_sprite = pygame.transform.scale(rotated, (self.tile_size, self.tile_size))
-        x,y = pacman.position
+        angle = self._get_rotation(
+            pacman.direction) if pacman.direction else 0
+        rotated = pygame.transform.rotate(
+            pacman.state[pacman.counter % self.mod], angle)
+        pacman_sprite = pygame.transform.scale(
+            rotated, (self.tile_size, self.tile_size))
+        x, y = pacman.position
         self.screen.blit(pacman_sprite, (x + self.offset_x, y + self.offset_y))
-    
+
     def _draw_pacman_death(self, pacman: Pacman):
         pacman.counter = 0
         self.mod = len(self.assets.pacman_death)
@@ -97,10 +108,12 @@ class Renderer:
         font = pygame.font.SysFont(None, 50)
         small_font = pygame.font.SysFont(None, 30)
         text = font.render("YOU DIED", True, "red")
-        prompt = small_font.render("Press R to Restart or Q to Quit", True, "white")
+        prompt = small_font.render(
+            "Press R to Restart or Q to Quit", True, "white")
         w, h = self.screen.get_size()
         self.screen.blit(text, (w // 2 - text.get_width() // 2, h // 2 - 40))
-        self.screen.blit(prompt, (w // 2 - prompt.get_width() // 2, h // 2 + 20))
+        self.screen.blit(prompt, (w // 2 - prompt.get_width() // 2,
+                                  h // 2 + 20))
 
     def _get_rotation(self, direction):
         if direction == (1, 0):   # limen
@@ -117,10 +130,11 @@ class Renderer:
         h = len(self.grid)
         w = len(self.grid[0])
         t = self.tile_size
-        corners = [(t, t), ((w - 2) * t, t), (t, (h - 2) * t), ((w - 2) * t, (h - 2) * t)]
+        corners = [(t, t), ((w - 2) * t, t),
+                   (t, (h - 2) * t), ((w - 2) * t, (h - 2) * t)]
         return corners
 
-    def _draw_ghosts(self, ghosts, pacman, red_pos):
+    def _draw_ghosts(self, ghosts, pacman, red_pos, freeze):
         eye_offset = self.tile_size // 4
         for ghost in ghosts:
             frightened = pacman.super and (ghost.was_dead == 0)
@@ -129,18 +143,23 @@ class Renderer:
             else:
                 figures = self.assets.ghosts
             if ghost.alive:
-                ghost._update(pacman, red_pos)
+                if not freeze:
+                    ghost._update(pacman, red_pos)
                 if not frightened:
-                    scaled_ghosts = pygame.transform.scale(figures[ghost.type][ghost.counter % 4], (self.tile_size, self.tile_size))
-                    scaled_eyes = pygame.transform.scale(self.assets.ghost_eyes, (self.tile_size // 2, self.tile_size // 2))
+                    scaled_ghosts = pygame.transform.scale(
+                        figures[ghost.type][ghost.counter % 4],
+                        (self.tile_size, self.tile_size))
+                    scaled_eyes = pygame.transform.scale(
+                        self.assets.ghost_eyes, (self.tile_size // 2,
+                                                 self.tile_size // 2))
                 else:
-                    scaled_ghosts = pygame.transform.scale(figures[ghost.counter % len(figures)], (self.tile_size, self.tile_size))
+                    scaled_ghosts = pygame.transform.scale(
+                        figures[ghost.counter % len(figures)],
+                        (self.tile_size, self.tile_size))
                 x, y = ghost.position
-                self.screen.blit(scaled_ghosts, (x + self.offset_x, y + self.offset_y))
+                self.screen.blit(scaled_ghosts, (x + self.offset_x,
+                                                 y + self.offset_y))
                 if not frightened:
-                    self.screen.blit(scaled_eyes, (x + eye_offset + self.offset_x, y + eye_offset + self.offset_y))
-
-    def _draw_uhd(self):
-        hud_text = f"Score: 0   Lives: 3   Level: 1   Time: 5s"
-        surface = self.font.render(hud_text, True, (255,255,255))
-        self.screen.blit(surface, (10 + self.offset_x, 10 + self.offset_y))
+                    self.screen.blit(scaled_eyes,
+                                     (x + eye_offset + self.offset_x,
+                                      y + eye_offset + self.offset_y))

@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from typing import Any
-from .custom_errors import ConfigFileError
 import json
+
+
+class ConfigFileError(Exception):
+    pass
 
 
 @dataclass
@@ -14,6 +17,7 @@ class Level:
 class Config:
     highscore_filename: str
     lives: int
+    pacgum: int
     points_per_pacgum: int
     points_per_super_pacgum: int
     points_per_ghost: int
@@ -21,10 +25,12 @@ class Config:
     level_max_time: int
     levels: list[Level]
 
+
 DEFAULT_CONFIG: dict[str, Any] = {
     "highscore_filename": "highscores.json",
     "seed": 42,
     "lives": 3,
+    "pacgum": 42,
     "level_max_time": 90,
     "points_per_pacgum": 10,
     "points_per_super_pacgum": 50,
@@ -43,13 +49,16 @@ DEFAULT_CONFIG: dict[str, Any] = {
     ]
 }
 
+
 POSITIVE_FIELDS = {
     "lives",
+    "pacgum",
     "points_per_pacgum",
     "points_per_super_pacgum",
     "points_per_ghost",
     "level_max_time",
 }
+
 
 def remove_comments(text: str) -> str:
     clean: list[str] = []
@@ -59,18 +68,22 @@ def remove_comments(text: str) -> str:
         clean.append(line)
     return "\n".join(clean)
 
+
 def load_json(filepath: str) -> dict[str, Any]:
     if not filepath.lower().endswith('.json'):
-        raise ConfigFileError(f"-Error: Config file should end with '.json': {filepath}")
+        raise ConfigFileError(
+            f"-Error: Config file should end with '.json': {filepath}")
 
     try:
         with open(filepath, "r") as file:
             text = file.read()
     except FileNotFoundError:
-        raise ConfigFileError(f"-Error: Can't find the file provided: {filepath}")
+        raise ConfigFileError(
+            f"-Error: Can't find the file provided: {filepath}")
     except PermissionError:
-        raise ConfigFileError(f"-Error: The is no permission to read the provided file")
-    
+        raise ConfigFileError(
+            "-Error: The is no permission to read the provided file")
+
     clean_text = remove_comments(text)
     try:
         configs: dict = json.loads(clean_text)
@@ -113,7 +126,7 @@ def load_config(filepath: str) -> Config:
         if key == "levels":
             levels = validate_levels(value)
             if levels is None:
-                print(f"-Warning : 'levels' are invalid, using default")
+                print("-Warning : 'levels' are invalid, using default")
                 valid[key] = DEFAULT_CONFIG[key]
                 continue
             valid[key] = levels
@@ -128,11 +141,12 @@ def load_config(filepath: str) -> Config:
             valid[key] = value
         else:
             print(f"-Warning: invalid type for {key}, using default")
-            valid[key] = DEFAULT_CONFIG[key]  
+            valid[key] = DEFAULT_CONFIG[key]
 
     return Config(
         highscore_filename=valid["highscore_filename"],
         lives=valid["lives"],
+        pacgum=valid["pacgum"],
         points_per_pacgum=valid["points_per_pacgum"],
         points_per_super_pacgum=valid["points_per_super_pacgum"],
         points_per_ghost=valid["points_per_ghost"],
