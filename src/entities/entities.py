@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from src.maze.maze_adapter import Tile
-from src.assets.assetmanager import GhostType, AssetManager
+from maze.maze_adapter import Tile
+from assets.assetmanager import GhostType, AssetManager
 from collections import deque
 from typing import Any
 from enum import Enum
@@ -154,7 +154,9 @@ class Pacman:
         if c_time - self.super_time >= 10000:
             self.super = 0
 
-    def check_collision(self, ghosts: list[Ghost]) -> tuple:
+    def check_collision(self, ghosts: list[Ghost], invincible: bool) -> tuple:
+        if invincible:
+            return (0, (-1, -1))
         margin = int(self.tile_size * 0.2)
         px = self.position[0] + margin
         py = self.position[1] + margin

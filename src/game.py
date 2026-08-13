@@ -4,13 +4,13 @@ import sys
 import random
 import json
 
-from src.maze.maze_adapter import MazeAdapter, Tile
-from src.assets.assetmanager import AssetManager, GhostType
-from src.renderer.renderer import Renderer
-from src.config.config import Config, load_config
-from src.entities.entities import Pacman, Ghost, PacState
-from src.game_view.ui import Menu, Instructions, HighScores, GameState, Paused
-from src.game_view.banners import Banners
+from maze.maze_adapter import MazeAdapter, Tile
+from assets.assetmanager import AssetManager, GhostType
+from renderer.renderer import Renderer
+from config.config import Config, load_config
+from entities.entities import Pacman, Ghost, PacState
+from game_view.ui import Menu, Instructions, HighScores, GameState, Paused
+from game_view.banners import Banners
 
 
 class Game():
@@ -305,7 +305,7 @@ class Game():
         if self.pacman.mode == PacState.ALIVE:
             for ghost in self.ghosts:
                 ghost._update_state(self.pacman)
-            collision, pos = self.pacman.check_collision(self.ghosts)
+            collision, pos = self.pacman.check_collision(self.ghosts, self.invincible)
             if collision == 1:
                 if not self.invincible:
                     self.pacman.death_start = pygame.time.get_ticks()
@@ -340,7 +340,6 @@ class Game():
             for ghost in self.ghosts:
                 ghost._reset()
             self.pacman.mode = PacState.ALIVE
-            self.renderer._draw_pacman(self.pacman)
             self.renderer.mod = len(self.assets.pacman)
             self.pacman._reset()
             self.lives -= 1

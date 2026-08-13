@@ -1,4 +1,4 @@
-from src.mazegenerator.mazegenerator import MazeGenerator
+from mazegenerator.mazegenerator import MazeGenerator
 from enum import Enum
 # from typing import List, Tuple, Set
 import random

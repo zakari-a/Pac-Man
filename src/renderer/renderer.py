@@ -1,7 +1,7 @@
 import pygame
-from src.maze.maze_adapter import Tile
-from src.entities.entities import Pacman, Ghost
-from src.assets.assetmanager import AssetManager
+from maze.maze_adapter import Tile
+from entities.entities import Pacman, Ghost
+from assets.assetmanager import AssetManager
 from typing import Any
 
 
@@ -46,7 +46,6 @@ class Renderer:
         center_offset = half // 2
         for y in range(len(self.grid)):
             for x in range(len(self.grid[y])):
-                figure = self.assets.wall_tiles[0]
                 cell = self.grid[y][x]
                 py = y * self.tile_size + self.offset_y
                 px = x * self.tile_size + self.offset_x
@@ -54,9 +53,7 @@ class Renderer:
                 ty = py + center_offset
                 if cell == Tile.WALL:
                     mask = self._get_mask(x, y, self.grid)
-                    figure = pygame.transform.scale(
-                        self.assets.wall_tiles[mask], (half, half))
-                    self.screen.blit(figure, (tx, ty))
+                    self.screen.blit(self.assets.wall_tiles[mask], (tx, ty))
                     if mask & 1:
                         self.screen.blit(
                             self.assets.wall_tiles[5], (tx, ty - half))
@@ -100,7 +97,7 @@ class Renderer:
         pacman.state = self.assets.pacman_death
         clock = pygame.time.Clock()
         start = pacman.death_start
-        while pygame.time.get_ticks() - start < 1500:
+        while pygame.time.get_ticks() - start < 1200:
             self.screen.fill("black")
             self._draw_maze()
             if pacman.counter < 6:
