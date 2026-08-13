@@ -1,10 +1,13 @@
 import pygame
-from maze.maze_adapter import Tile
-from entities.entities import Pacman
+from src.maze.maze_adapter import Tile
+from src.entities.entities import Pacman, Ghost
+from src.assets.assetmanager import AssetManager
+from typing import Any
 
 
 class Renderer:
-    def __init__(self, screen, assets, grid):
+    def __init__(self, screen: pygame.Surface,
+                 assets: AssetManager, grid: list[list[Tile]]):
         self.screen = screen
         self.grid = grid
         self.tile_size = assets.tile_size
@@ -15,7 +18,7 @@ class Renderer:
         self.offset_y = 0
         self.mod = len(self.assets.pacman)
 
-    def _set_offset(self):
+    def _set_offset(self) -> None:
         width = len(self.grid[0]) * self.tile_size
         height = len(self.grid) * self.tile_size
         screen_w, screen_h = self.screen.get_size()
@@ -38,7 +41,7 @@ class Renderer:
             score += 8
         return score
 
-    def _draw_maze(self):
+    def _draw_maze(self) -> None:
         half = self.tile_size // 2
         center_offset = half // 2
         for y in range(len(self.grid)):
@@ -70,6 +73,7 @@ class Renderer:
                     figure = pygame.transform.scale(
                         self.assets.pacgum, (half, half))
                     self.screen.blit(figure, (tx, ty))
+
                 elif cell == Tile.SUPER_PACGUM:
                     figure = pygame.transform.scale(
                         self.assets.super_pacgum, (half, half))
@@ -77,7 +81,7 @@ class Renderer:
                 else:
                     continue
 
-    def _draw_pacman(self, pacman: Pacman):
+    def _draw_pacman(self, pacman: Pacman) -> None:
         move = pacman._move_frame()
         if move:
             pacman.counter += 1
@@ -90,7 +94,7 @@ class Renderer:
         x, y = pacman.position
         self.screen.blit(pacman_sprite, (x + self.offset_x, y + self.offset_y))
 
-    def _draw_pacman_death(self, pacman: Pacman):
+    def _draw_pacman_death(self, pacman: Pacman) -> None:
         pacman.counter = 0
         self.mod = len(self.assets.pacman_death)
         pacman.state = self.assets.pacman_death
@@ -104,7 +108,7 @@ class Renderer:
             pygame.display.flip()
             clock.tick(60)
 
-    def _draw_game_over_screen(self):
+    def _draw_game_over_screen(self) -> None:
         font = pygame.font.SysFont(None, 50)
         small_font = pygame.font.SysFont(None, 30)
         text = font.render("YOU DIED", True, "red")
@@ -115,7 +119,7 @@ class Renderer:
         self.screen.blit(prompt, (w // 2 - prompt.get_width() // 2,
                                   h // 2 + 20))
 
-    def _get_rotation(self, direction):
+    def _get_rotation(self, direction: tuple[int, int]) -> int:
         if direction == (1, 0):   # limen
             return 0
         elif direction == (0, -1):  # lfo9
@@ -126,7 +130,7 @@ class Renderer:
             return 270
         return 0
 
-    def _get_corners(self):
+    def _get_corners(self) -> list[tuple[int, int]]:
         h = len(self.grid)
         w = len(self.grid[0])
         t = self.tile_size
@@ -134,12 +138,13 @@ class Renderer:
                    (t, (h - 2) * t), ((w - 2) * t, (h - 2) * t)]
         return corners
 
-    def _draw_ghosts(self, ghosts, pacman, red_pos, freeze):
+    def _draw_ghosts(self, ghosts: list[Ghost], pacman: Pacman,
+                     red_pos: tuple[int, int], freeze: bool) -> None:
         eye_offset = self.tile_size // 4
         for ghost in ghosts:
             frightened = pacman.super and (ghost.was_dead == 0)
             if frightened:
-                figures = self.assets.scared_ghost
+                figures: Any = self.assets.scared_ghost
             else:
                 figures = self.assets.ghosts
             if ghost.alive:

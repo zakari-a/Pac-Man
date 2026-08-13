@@ -10,20 +10,20 @@ class GhostType(Enum):
 
 
 class AssetManager():
-    def __init__(self, tile_size):
-        self.wall_tiles: dict[int, pygame.Surface] = {}
+    def __init__(self, tile_size: int):
+        self.wall_tiles: dict = {}
 
-        self.pacman: list[pygame.Surface] = []
-        self.pacman_death: list[pygame.Surface] = []
+        self.pacman: list = []
+        self.pacman_death: list = []
 
-        self.ghosts: dict[GhostType, list[pygame.Surface]] = {}
-        self.scared_ghost: list[pygame.Surface] = []
+        self.ghosts: dict = {}
+        self.scared_ghost: list = []
         self.ghost_eyes: pygame.Surface
         self.death_eyes: pygame.Surface
 
         self.pacgum: pygame.Surface
         self.super_pacgum: pygame.Surface
-        self.tile_size = tile_size
+        self.tile_size: int = tile_size
         self.font_10 = pygame.font.Font(
             "src/assets/PressStart2P-Regular.ttf", 10)
         self.font_15 = pygame.font.Font(
@@ -110,13 +110,13 @@ class AssetManager():
             "src/assets/ghosts_assets.png").convert_alpha()
         types = [
             GhostType.RED, GhostType.BLUE, GhostType.PINK, GhostType.ORANGE]
-        for row_idx, row in enumerate(types):
+        for row_idx, ghost_type in enumerate(types):
             frames = []
             for col in range(4):
                 frames.append(
                     spritesheet.subsurface(
                         pygame.Rect(col * 32, row_idx * 32, 32, 32)).copy())
-            self.ghosts[row] = frames
+            self.ghosts[ghost_type] = frames
 
         for row in range(8, 10):
             for col in range(4):

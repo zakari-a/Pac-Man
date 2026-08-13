@@ -1,20 +1,21 @@
 import pygame
-from config.config import load_config
+# from config.config import load_config
 import sys
 import random
 import json
 
-from maze.maze_adapter import MazeAdapter, Tile
-from assets.assetmanager import AssetManager, GhostType
-from renderer.renderer import Renderer
-from entities.entities import Pacman, Ghost, PacState
-from game_view.ui import Menu, Instructions, HighScores, GameState, Paused
-from game_view.banners import Banners
+from src.maze.maze_adapter import MazeAdapter, Tile
+from src.assets.assetmanager import AssetManager, GhostType
+from src.renderer.renderer import Renderer
+from src.config.config import Config, load_config
+from src.entities.entities import Pacman, Ghost, PacState
+from src.game_view.ui import Menu, Instructions, HighScores, GameState, Paused
+from src.game_view.banners import Banners
 
 
 class Game():
 
-    def __init__(self, configs) -> None:
+    def __init__(self, configs: Config) -> None:
         self.configs = configs
 
         # pygame variables
@@ -28,10 +29,10 @@ class Game():
         self.clock = pygame.time.Clock()
         self.frame_tick = 0
         self.counter = 0
-        self.dt = 0
+        self.dt = 0.0
 
         # ui
-        self.assets = None
+        self.assets: AssetManager
         self.menu: Menu
         self.inst: Instructions
         self.hs: HighScores
@@ -39,20 +40,19 @@ class Game():
         self.banners: Banners
 
         # maze and render variables
-        self.adapter: MazeAdapter = None
-        self.renderer = None
-        self.adapter = None
-        self.grid = []
+        self.adapter: MazeAdapter
+        self.renderer: Renderer
+        self.grid: list[list[Tile]] = []
         self.tile_size = 0
-        self.pacman = None
-        self.ghosts = None
+        self.pacman: Pacman
+        self.ghosts: list[Ghost]
 
         # levels variables
         self.level_num = 0
         self.max_level = 10
         self.levels = self.configs.levels
         self.done = False
-        self.level_timer = self.configs.level_max_time
+        self.level_timer: float = self.configs.level_max_time
 
         # key variables
         self.last_move_time = 0
@@ -73,7 +73,7 @@ class Game():
         self.lives = self.configs.lives
         self.pacgum_points = configs.points_per_pacgum
         self.supergum_points = configs.points_per_super_pacgum
-        self.corners = []
+        self.corners: list[tuple[int, int]] = []
         self._init_level()
 
         # cheat mode
@@ -87,6 +87,11 @@ class Game():
             self.game_state = GameState.GAME_OVER
             self.done = True
             return
+
+        self.invincible = False
+        self.freeze = False
+        self.super_speed = False
+        self.stop_time = False
         self.level_timer = self.configs.level_max_time
         level = self.levels[self.level_num]
         if self.level_num != 0:
@@ -94,7 +99,7 @@ class Game():
 
         self.adapter = MazeAdapter(level.width,
                                    level.height, self.configs.seed)
-        self.grid = self.adapter.load()
+        self.grid = self.adapter.load(self.configs.pacgum)
 
         rows = len(self.grid)
         cols = len(self.grid[0])
@@ -127,7 +132,7 @@ class Game():
         for ghost in self.ghosts:
             ghost._reset()
 
-    def _handle_menu_input(self, event: pygame.event) -> None:
+    def _handle_menu_input(self, event: pygame.event.Event) -> None:
         now = pygame.time.get_ticks()
         if event.type != pygame.KEYDOWN:
             return
@@ -145,7 +150,7 @@ class Game():
             if self.game_state == GameState.PLAYING:
                 self._init_level()
 
-    def _handle_play_input(self, event: pygame.event) -> None:
+    def _handle_play_input(self, event: pygame.event.Event) -> None:
         if event.type != pygame.KEYDOWN:
             return
 
@@ -173,7 +178,7 @@ class Game():
         elif event.key == pygame.K_F6:
             self.stop_time = not self.stop_time
 
-    def _handle_inst_input(self, event: pygame.event) -> None:
+    def _handle_inst_input(self, event: pygame.event.Event) -> None:
         now = pygame.time.get_ticks()
         if event.type != pygame.KEYDOWN:
             return
@@ -190,7 +195,7 @@ class Game():
         elif event.key == pygame.K_ESCAPE:
             self.game_state = GameState.MENU
 
-    def _handle_pause_input(self, event: pygame.event) -> None:
+    def _handle_pause_input(self, event: pygame.event.Event) -> None:
         if event.type != pygame.KEYDOWN:
             return
         if event.key == pygame.K_UP:
@@ -202,8 +207,10 @@ class Game():
             self.game_state = self.pause.paused_list[self.pause.index][1]
             if self.game_state == GameState.MENU:
                 self.level_num = 0
+                self.score = 0
+                self.lives = self.configs.lives
 
-    def _handle_hs_input(self, event: pygame.event) -> None:
+    def _handle_hs_input(self, event: pygame.event.Event) -> None:
         now = pygame.time.get_ticks()
         if event.type != pygame.KEYDOWN:
             return
@@ -221,7 +228,7 @@ class Game():
         elif event.key == pygame.K_ESCAPE:
             self.game_state = GameState.MENU
 
-    def _handle_score_input(self, event: pygame.event) -> None:
+    def _handle_score_input(self, event: pygame.event.Event) -> None:
         if event.type != pygame.KEYDOWN:
             return
 

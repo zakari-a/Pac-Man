@@ -1,6 +1,9 @@
-from maze.maze_adapter import Tile
-from assets.assetmanager import GhostType
+from __future__ import annotations
+
+from src.maze.maze_adapter import Tile
+from src.assets.assetmanager import GhostType, AssetManager
 from collections import deque
+from typing import Any
 from enum import Enum
 import pygame
 
@@ -11,7 +14,8 @@ class PacState(Enum):
 
 
 class Pacman:
-    def __init__(self, tilesize, grid, assets):
+    def __init__(self, tilesize: int,
+                 grid: list[list[Tile]], assets: AssetManager):
         self.grid = grid
         self.assets = assets
         self.state = assets.pacman
@@ -29,7 +33,7 @@ class Pacman:
         self.super_time = 0
         self.mode = PacState.ALIVE
 
-    def _reset(self):
+    def _reset(self) -> None:
         self.counter = 0
         self.death_start = 0
         self.direction = (0, 0)
@@ -37,7 +41,7 @@ class Pacman:
         self.state = self.assets.pacman
         self.position = self.spawn
 
-    def _find_spawn(self):
+    def _find_spawn(self) -> None:
         for y in range(len(self.grid)):
             for x in range(len(self.grid[y])):
                 if self.grid[y][x] == Tile.SPAWN:
@@ -46,7 +50,7 @@ class Pacman:
                     return
         raise ValueError("No spawn tile found in maze")
 
-    def _fast_mouvements(self):
+    def _fast_mouvements(self) -> tuple:
         direction = self.direction
         if self.direction == (0, -1) and self.next_direction == (0, +1):
             return self.next_direction
@@ -58,7 +62,7 @@ class Pacman:
             return self.next_direction
         return direction
 
-    def _get_speed(self):
+    def _get_speed(self) -> int:
         x, y = self.position
         t = self.tile_size
         if self.direction == (0, -1) or self.direction == (-1, 0):
@@ -77,7 +81,7 @@ class Pacman:
             return self.speed
         return distance
 
-    def _update_pacposition(self):
+    def _update_pacposition(self) -> None:
         if self.direction == (0, 0) and self.next_direction == (0, 0):
             return
         x, y = self.position
@@ -108,7 +112,7 @@ class Pacman:
                 return
         self.position = (nx, ny)
 
-    def _set_pacmouvements(self, key):
+    def _set_pacmouvements(self, key: Any) -> None:
         if key == pygame.K_UP:
             self.next_direction = (0, -1)
         elif key == pygame.K_DOWN:
@@ -125,7 +129,8 @@ class Pacman:
         self.time = pygame.time.get_ticks()
         return 1
 
-    def eat(self, ghosts, pacgum_points, supergum_points) -> int:
+    def eat(self, ghosts: list[Ghost],
+            pacgum_points: int, supergum_points: int) -> int:
         score = 0
         x = self.position[0] + self.pac_size // 2
         y = self.position[1] + self.pac_size // 2
@@ -144,12 +149,12 @@ class Pacman:
             self.grid[gy][gx] = Tile.EMPTY
         return score
 
-    def _go_normal(self):
+    def _go_normal(self) -> None:
         c_time = pygame.time.get_ticks()
         if c_time - self.super_time >= 10000:
             self.super = 0
 
-    def check_collision(self, ghosts):
+    def check_collision(self, ghosts: list[Ghost]) -> tuple:
         margin = int(self.tile_size * 0.2)
         px = self.position[0] + margin
         py = self.position[1] + margin
@@ -172,7 +177,8 @@ class Pacman:
 
 
 class Ghost:
-    def __init__(self, g_type, corner, grid, assets):
+    def __init__(self, g_type: GhostType, corner: tuple,
+                 grid: list[list[Tile]], assets: AssetManager):
         self.tile_size = assets.tile_size
         self.grid = grid
         self.base_corner = corner
@@ -187,17 +193,17 @@ class Ghost:
         self.was_dead = 0
         self.one_turn = False
 
-    def _reset(self):
+    def _reset(self) -> None:
         self.counter = 0
         self.death_start = 0
         self.direction = (0, 0)
         self.position = self.base_corner
         self.alive = True
 
-    def _get_position(self):
+    def _get_position(self) -> tuple[int, int]:
         return self.position
 
-    def _get_speed(self):
+    def _get_speed(self) -> Any:
         x, y = self.position
         t = self.tile_size
         if self.direction == (0, -1) or self.direction == (-1, 0):
@@ -216,7 +222,7 @@ class Ghost:
             return self.speed
         return distance
 
-    def _can_move(self, direction):
+    def _can_move(self, direction: tuple) -> bool:
         if direction == (0, 0):
             return False
         dx, dy = direction
@@ -233,7 +239,7 @@ class Ghost:
                 return False
         return True
 
-    def _move(self):
+    def _move(self) -> None:
         if not self._can_move(self.direction):
             return
         dx, dy = self.direction
@@ -243,7 +249,7 @@ class Ghost:
         ny = y + dy * speed
         self.position = (nx, ny)
 
-    def _valid_directions(self):
+    def _valid_directions(self) -> list[tuple]:
         directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
         valids = []
         for direction in directions:
@@ -275,13 +281,15 @@ class Ghost:
     #             b_direction = direction
     #     self.direction = b_direction
 
-    def _death_time(self):
+    def _death_time(self) -> None:
         if not self.alive:
             c_time = pygame.time.get_ticks()
             if c_time - self.death_start >= 6000:
                 self.alive = True
 
-    def _choose_cheapest(self, directions, dist_map, turn):
+    def _choose_cheapest(self, directions: list[tuple[int, int]],
+                         dist_map: dict[tuple, int],
+                         turn: bool) -> list:
         x, y = self.position
         if not turn:
             reverse = (-self.direction[0], -self.direction[1])
@@ -301,20 +309,21 @@ class Ghost:
                 b_direction = direction
         return [b_direction] if b_direction else []
 
-    def _choose_direction(self, dist_map, turn):
+    def _choose_direction(self, dist_map: dict[tuple, int],
+                          turn: bool) -> None:
         valids = self._valid_directions()
         if len(valids) > 1:
             valids = self._choose_cheapest(valids, dist_map, turn)
         if valids:
             self.direction = valids[0]
 
-    def _move_frame(self):
+    def _move_frame(self) -> None:
         c_time = pygame.time.get_ticks()
         if c_time - self.time >= 150:
             self.counter += 1
             self.time = pygame.time.get_ticks()
 
-    def _update(self, pacman, red_pos):
+    def _update(self, pacman: Pacman, red_pos: tuple[int, int]) -> None:
         x, y = self.position
         if x % self.tile_size == 0 and y % self.tile_size == 0:
             dist_map = self.pathfinder(pacman, red_pos)
@@ -330,7 +339,8 @@ class Ghost:
         self._move()
         self._move_frame()
 
-    def _chase_type(self, pacman, red_pos):
+    def _chase_type(self, pacman: Pacman,
+                    red_pos: tuple[int, int]) -> tuple[int, int]:
         px = pacman.position[0] // self.tile_size
         py = pacman.position[1] // self.tile_size
         pdx = pacman.direction[0]
@@ -362,7 +372,7 @@ class Ghost:
                     self.base_corner[1] // self.tile_size)
         return (px, py)
 
-    def _get_neighbours(self, position):
+    def _get_neighbours(self, position: tuple) -> list:
         valids = []
         grid = self.grid
         width = len(grid[0])
@@ -378,7 +388,8 @@ class Ghost:
             valids.append((x + 1, y))
         return valids
 
-    def pathfinder(self, pacman, red_pos):
+    def pathfinder(self, pacman: Pacman,
+                   red_pos: tuple[int, int]) -> dict[tuple, int]:
         start_point = self._chase_type(pacman, red_pos)
         grid = self.grid
         h = len(grid)
@@ -401,7 +412,7 @@ class Ghost:
                     result[(neighbour)] = distance + 1
         return result
 
-    def _update_state(self, pacman):
+    def _update_state(self, pacman: Pacman) -> None:
         self._death_time()
         if not pacman.super:
             self.was_dead = 0

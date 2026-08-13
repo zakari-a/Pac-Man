@@ -22,7 +22,7 @@ class Menu():
         self.screen = screen
         self.width, self.height = screen.get_size()
         self.index = 0
-        self.background = pygame.transform.scale(
+        self.background: pygame.Surface = pygame.transform.scale(
             assets.background1, (self.width, self.height))
         self.font = assets.font_20
         self.menu_list = [
