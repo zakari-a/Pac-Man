@@ -1,7 +1,7 @@
 import pygame
-from maze.maze_adapter import Tile
-from entities.entities import Pacman, Ghost
-from assets.assetmanager import AssetManager
+from src.maze.maze_adapter import Tile
+from src.entities.entities import Pacman, Ghost
+from src.assets.assetmanager import AssetManager
 from typing import Any
 
 

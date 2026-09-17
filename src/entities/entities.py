@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from maze.maze_adapter import Tile
-from assets.assetmanager import GhostType, AssetManager
+from src.maze.maze_adapter import Tile
+from src.assets.assetmanager import GhostType, AssetManager
 from collections import deque
 from typing import Any
 from enum import Enum

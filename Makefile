@@ -5,7 +5,7 @@ MYPY = venv/bin/mypy
 
 install:
 	python3 -m venv venv
-	$(PIP) install pygame flake8 mypy 
+	$(PIP) install pygame flake8 mypy
 
 run:
 	$(PY) pac_man.py config.json
