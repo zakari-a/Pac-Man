@@ -54,10 +54,10 @@ class Config:
         self.pacgum: int = 0
         self.points_per_pacgum: int = 0
         self.points_per_super_pacgum: int = 0
-        self.points_per_ghost: int = 0 
+        self.points_per_ghost: int = 0
         self.seed: int = 0
         self.level_max_time: int = 0
-        self.levels: list[Level] = 0
+        self.levels: list[Level] = []
 
     def remove_comments(self, text: str) -> str:
         clean: list[str] = []
@@ -66,7 +66,6 @@ class Config:
                 continue
             clean.append(line)
         return "\n".join(clean)
-
 
     def load_json(self, filepath: str) -> dict[str, Any]:
         if not filepath.lower().endswith('.json'):
@@ -90,7 +89,6 @@ class Config:
             raise ConfigFileError(f"-Error: invalid JSON in config ({e})")
         return configs
 
-
     def validate_levels(self, value: Any) -> list[Level] | None:
         if not isinstance(value, list) or not value:
             return None
@@ -106,7 +104,6 @@ class Config:
                 return None
             levels.append(Level(width=w, height=h))
         return levels
-
 
     def load_config(self, filepath: str) -> None:
         data = self.load_json(filepath)
@@ -134,7 +131,8 @@ class Config:
             expected = type(DEFAULT_CONFIG[key])
             if type(value) is expected:
                 if key in POSITIVE_FIELDS and expected is int and value <= 0:
-                    print(f"-Warning: value for {key} in invalid, using default")
+                    print(f"-Warning: value for {key} "
+                          "in invalid, using default")
                     valid[key] = DEFAULT_CONFIG[key]
                     continue
                 valid[key] = value

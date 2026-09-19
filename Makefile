@@ -1,14 +1,15 @@
 PIP = venv/bin/pip
 PY = venv/bin/python3
+PK = venv/bin/pyinstaller
 FALKE = venv/bin/flake8
 MYPY = venv/bin/mypy
 
 install:
 	python3 -m venv venv
-	$(PIP) install pygame flake8 mypy
+	$(PIP) install pygame flake8 mypy pyinstaller
 
 run:
-	$(PY) pac_man.py config.json
+	$(PY) pac-man.py config.json
 
 debug:
 	$(PY) -m pdb pac-man.py config.json

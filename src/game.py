@@ -7,6 +7,7 @@ from src.maze.maze_adapter import MazeAdapter, Tile
 from src.assets.assetmanager import AssetManager, GhostType
 from src.renderer.renderer import Renderer
 from src.config.config import Config
+from src.config.paths import highscore_path
 from src.entities.entities import Pacman, Ghost, PacState
 from src.game_view.ui import Menu, Instructions, HighScores, GameState, Paused
 from src.game_view.banners import Banners
@@ -60,9 +61,10 @@ class Game():
 
         # highscors variables
         try:
-            with open("highscores.json", "r") as f:
+            with open(highscore_path(self.configs.highscore_filename),
+                      "r") as f:
                 self.highscores = json.load(f)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, FileNotFoundError):
             self.highscores = []
         self.h_s = self.highscores[0]["score"] if self.highscores else 0
 
@@ -73,6 +75,7 @@ class Game():
         self.pacgum_points = configs.points_per_pacgum
         self.supergum_points = configs.points_per_super_pacgum
         self.corners: list[tuple[int, int]] = []
+        self.seed: int = 0
         self._init_level()
 
         # cheat mode
@@ -94,10 +97,12 @@ class Game():
         self.level_timer = self.configs.level_max_time
         level = self.levels[self.level_num]
         if self.level_num != 0:
-            self.configs.seed = random.randint(1, 9999)
+            self.seed = random.randint(1, 9999)
+        else:
+            self.seed = self.configs.seed
 
         self.adapter = MazeAdapter(level.width,
-                                   level.height, self.configs.seed)
+                                   level.height, self.seed)
         self.grid = self.adapter.load(self.configs.pacgum)
 
         rows = len(self.grid)
@@ -231,33 +236,26 @@ class Game():
         if event.type != pygame.KEYDOWN:
             return
 
-        if event.key == pygame.K_UP:
-            self.hs.index = (self.hs.index - 1) % 2
+        if (event.key == pygame.K_BACKSPACE
+                and self.hs.name_index >= 0):
+            self.hs.name[self.hs.name_index] = "_"
+            if self.hs.name_index == 0:
+                return
+            self.hs.name_index -= 1
 
-        elif event.key == pygame.K_DOWN:
-            self.hs.index = (self.hs.index + 1) % 2
+        elif ((event.unicode.isalnum() or event.unicode == " ")
+                and self.hs.name_index <= 9):
+            index = self.hs.name_index
+            self.hs.name[index] = event.unicode
+            if self.hs.name_index == 9:
+                return
+            self.hs.name_index += 1
 
-        if self.hs.index == 0:
-            if (event.key == pygame.K_BACKSPACE
-                    and self.hs.name_index >= 0):
-                self.hs.name[self.hs.name_index] = "_"
-                if self.hs.name_index == 0:
-                    return
-                self.hs.name_index -= 1
-
-            elif ((event.unicode.isalnum() or event.unicode == " ")
-                  and self.hs.name_index <= 9):
-                index = self.hs.name_index
-                self.hs.name[index] = event.unicode
-                if self.hs.name_index == 9:
-                    return
-                self.hs.name_index += 1
-        else:
-            if event.key == pygame.K_RETURN:
-                self.game_state = GameState.MENU
-                self.hs._update_highsocores(self.score)
-                self.level_num = 0
-                self.score = 0
+        elif event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
+            self.game_state = GameState.MENU
+            self.hs._update_highsocores(self.score)
+            self.level_num = 0
+            self.score = 0
 
     def _check_empty_grid(self) -> bool:
         for row in self.grid:

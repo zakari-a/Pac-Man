@@ -1,5 +1,6 @@
 import pygame
 from enum import Enum
+from src.config.paths import resource_path
 import sys
 
 
@@ -27,17 +28,19 @@ class AssetManager():
         self.tile_size: int = tile_size
         try:
             self.font_10 = pygame.font.Font(
-                "src/assets/PressStart2P-Regular.ttf", 10)
+                resource_path("src/assets/PressStart2P-Regular.ttf"), 10)
             self.font_15 = pygame.font.Font(
-                "src/assets/PressStart2P-Regular.ttf", 15)
+                resource_path("src/assets/PressStart2P-Regular.ttf"), 15)
             self.font_20 = pygame.font.Font(
-                "src/assets/PressStart2P-Regular.ttf", 20)
+                resource_path("src/assets/PressStart2P-Regular.ttf"), 20)
             self.font_35 = pygame.font.Font(
-                "src/assets/PressStart2P-Regular.ttf", 35)
+                resource_path("src/assets/PressStart2P-Regular.ttf"), 35)
             self.background1 = pygame.image.load(
-                "src/assets/pacman-backgroud.png").convert_alpha()
+                resource_path(
+                    "src/assets/pacman-backgroud.png")).convert_alpha()
             self.background2 = pygame.image.load(
-                "src/assets/commands_background.jpeg").convert_alpha()
+                resource_path(
+                    "src/assets/commands_background.jpeg")).convert_alpha()
         except FileNotFoundError as e:
             print(e)
             sys.exit(1)
@@ -48,7 +51,7 @@ class AssetManager():
     def _load_walls(self) -> None:
         try:
             spritesheet = pygame.image.load(
-                "src/assets/wall_assets.png").convert_alpha()
+                resource_path("src/assets/wall_assets.png")).convert_alpha()
         except FileNotFoundError:
             print("Cant find 'wall_assets.png' in src/assets")
             sys.exit(1)
@@ -99,7 +102,7 @@ class AssetManager():
     def _load_pacman(self) -> None:
         try:
             spritesheet = pygame.image.load(
-                "src/assets/pacman_assets.png").convert_alpha()
+                resource_path("src/assets/pacman_assets.png")).convert_alpha()
         except FileNotFoundError:
             print("Can't find 'pacman_assets.png' in src/assets")
             sys.exit(1)
@@ -121,7 +124,7 @@ class AssetManager():
     def _load_ghosts(self) -> None:
         try:
             spritesheet = pygame.image.load(
-                "src/assets/ghosts_assets.png").convert_alpha()
+                resource_path("src/assets/ghosts_assets.png")).convert_alpha()
         except FileNotFoundError:
             print("Can't find 'ghosts_assets.png' in src/assets")
             sys.exit(1)
@@ -145,7 +148,8 @@ class AssetManager():
             pygame.Rect(0, 320, 16, 16)).copy()
 
     def _load_items(self) -> None:
-        spritesheet = pygame.image.load("src/assets/items_assets.png")
+        spritesheet = pygame.image.load(
+            resource_path("src/assets/items_assets.png")).convert_alpha()
         self.pacgum = spritesheet.subsurface(
             pygame.Rect(pygame.Rect(0, 16, 16, 16)).copy()
         )
@@ -156,12 +160,12 @@ class AssetManager():
     def _load_images(self) -> None:
         try:
             spritesheet = pygame.image.load(
-                "src/assets/victory.png").convert_alpha()
+                resource_path("src/assets/victory.png")).convert_alpha()
             self.victory = spritesheet.subsurface(
                 pygame.Rect(pygame.Rect(40, 325, 1450, 345)).copy()
                 )
             spritesheet = pygame.image.load(
-                "src/assets/banners.png").convert_alpha()
+                resource_path("src/assets/banners.png")).convert_alpha()
         except FileNotFoundError as e:
             print(e)
             sys.exit(1)

@@ -257,21 +257,21 @@ class HighScores():
             spacing += 0.025
             start_x = self.width * spacing
 
-        x = self.width * 0.02
-        y = self.height * 0.9
-        box_width = self.width * 0.20
-        box_height = self.height * 0.08
-        text = "CONFIRM"
-        color = "darkblue"
-        if self.index == 1:
-            color = "white"
-            text = f"→ {text}"
-        box_rect = pygame.Rect(x, y, box_width, box_height)
-        pygame.draw.rect(
-            self.screen, color, box_rect, width=10, border_radius=50)
-        label = self.font1.render(text, True, "white")
-        label_rect = label.get_rect(center=box_rect.center)
-        self.screen.blit(label, label_rect)
+        # x = self.width * 0.02
+        # y = self.height * 0.9
+        # box_width = self.width * 0.20
+        # box_height = self.height * 0.08
+        # text = "CONFIRM"
+        # color = "darkblue"
+        # if self.index == 1:
+        #     color = "white"
+        #     text = f"→ {text}"
+        # box_rect = pygame.Rect(x, y, box_width, box_height)
+        # pygame.draw.rect(
+        #     self.screen, color, box_rect, width=10, border_radius=50)
+        # label = self.font1.render(text, True, "white")
+        # label_rect = label.get_rect(center=box_rect.center)
+        # self.screen.blit(label, label_rect)
 
     def run(self) -> None:
         label_surface = self.font3.render("HIGHSCORES", True, "yellow")
