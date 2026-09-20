@@ -5,6 +5,7 @@ from typing import Any
 
 
 class GameState(Enum):
+    """Enum representing the different states of the game."""
     MENU = 0
     PLAYING = 1
     PAUSED = 2
@@ -17,8 +18,9 @@ class GameState(Enum):
 
 
 class Menu():
+    """Class responsible for displaying the main
+    menu and handling user interactions."""
     def __init__(self, assets: Any, screen: pygame.Surface) -> None:
-        # self.assets = assets
         self.screen = screen
         self.width, self.height = screen.get_size()
         self.index = 0
@@ -33,7 +35,7 @@ class Menu():
             ]
 
     def run(self) -> None:
-        # self.lives = self.configs.lives
+        """Render the main menu on the screen."""
         spacing = 0.50
         start_x = self.width * 0.10
         start_y = self.height * spacing
@@ -49,7 +51,10 @@ class Menu():
 
 
 class Instructions():
+    """Class responsible for displaying game
+    instructions and handling user interactions."""
     def __init__(self, assets: Any, screen: pygame.Surface) -> None:
+        """Initialize the Instructions class with assets and screen."""
         self.screen = screen
         self.width, self.height = screen.get_size()
         self.index = 0
@@ -76,6 +81,7 @@ class Instructions():
                         ("HIGHSCORES", GameState.HIGHSCORES)]
 
     def _draw_sections(self) -> None:
+        """Draw the section titles on the screen."""
         start_x = self.width * 0.12
         start_y = self.height * 0.20
         for text in self.sections:
@@ -84,6 +90,8 @@ class Instructions():
             start_x = self.width * 0.68
 
     def _draw_keys(self) -> None:
+        """Draw the key representations and
+        their corresponding labels on the screen."""
         coords = [
             (self.width * 0.15, self.height * 0.30),
             (self.width * 0.11, self.height * 0.36),
@@ -124,6 +132,8 @@ class Instructions():
             self.screen.blit(label_surface, label_rect)
 
     def _draw_inst_text(self) -> None:
+        """Draw the instruction text for
+        movements and cheats on the screen."""
         coords = [
             (self.width * 0.25, self.height * 0.36),
             (self.width * 0.25, self.height * 0.50),
@@ -144,6 +154,7 @@ class Instructions():
             start_y = self.height * spacing
 
     def run(self) -> None:
+        """Render the instructions screen on the display."""
         label_surface = self.font3.render("INSTRUCTION", True, "yellow")
         label_surface2 = self.font3.render("___________", True, "darkblue")
         box_rect = pygame.Rect(self.width * 0.02, self.height * 0.02,
@@ -186,6 +197,8 @@ class Instructions():
 
 
 class HighScores():
+    """Class responsible for displaying high
+    scores and handling user interactions."""
     def __init__(
         self,
         assets: Any,
@@ -193,6 +206,8 @@ class HighScores():
         scores: list[dict[str, Any]],
         file_name: str
     ) -> None:
+        """Initialize the HighScores class with
+        assets, screen, scores, and file name."""
         self.screen = screen
         self.scores = scores
         self.file = file_name
@@ -211,6 +226,8 @@ class HighScores():
         self.highscore = self.scores[0]["score"] if self.scores else 0
 
     def _update_highsocores(self, score: int) -> None:
+        """Update the high scores list with
+        the new score and save it to the file."""
         name = "".join(self.name).rstrip("_")
         if not name:
             return
@@ -222,6 +239,7 @@ class HighScores():
             json.dump(self.scores, f, indent=2)
 
     def enter_name(self, done: bool, score: int) -> None:
+        """Handle the name entry process for high scores."""
         box_rect = pygame.Rect(self.width * 0.02, self.height * 0.02,
                                self.width * 0.96, self.height * 0.8)
         overlay = pygame.Surface(
@@ -257,23 +275,8 @@ class HighScores():
             spacing += 0.025
             start_x = self.width * spacing
 
-        # x = self.width * 0.02
-        # y = self.height * 0.9
-        # box_width = self.width * 0.20
-        # box_height = self.height * 0.08
-        # text = "CONFIRM"
-        # color = "darkblue"
-        # if self.index == 1:
-        #     color = "white"
-        #     text = f"→ {text}"
-        # box_rect = pygame.Rect(x, y, box_width, box_height)
-        # pygame.draw.rect(
-        #     self.screen, color, box_rect, width=10, border_radius=50)
-        # label = self.font1.render(text, True, "white")
-        # label_rect = label.get_rect(center=box_rect.center)
-        # self.screen.blit(label, label_rect)
-
     def run(self) -> None:
+        """Render the high scores screen on the display."""
         label_surface = self.font3.render("HIGHSCORES", True, "yellow")
         label_surface2 = self.font3.render("__________", True, "darkblue")
         box_rect = pygame.Rect(self.width * 0.02, self.height * 0.02,
@@ -327,7 +330,10 @@ class HighScores():
 
 
 class Paused():
+    """Class responsible for displaying the paused
+    menu and handling user interactions."""
     def __init__(self, assets: Any, screen: pygame.Surface) -> None:
+        """Initialize the Paused class with assets and screen."""
         self.screen = screen
         self.width, self.height = screen.get_size()
         self.paused_list = [("RESUME", GameState.PLAYING),
@@ -337,6 +343,7 @@ class Paused():
         self.font = assets.font_20
 
     def run(self) -> None:
+        """Render the paused menu on the display."""
         overlay = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 200))
         self.screen.blit(overlay, (0, 0))

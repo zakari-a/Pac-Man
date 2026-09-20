@@ -1,10 +1,10 @@
-from src.mazegenerator.mazegenerator import MazeGenerator
+from mazegenerator import MazeGenerator
 from enum import Enum
-# from typing import List, Tuple, Set
 import random
 
 
 class Tile(Enum):
+    """Enum representing the different types of tiles in the maze."""
     WALL = 0
     EMPTY = 1
     PACGUM = 2
@@ -13,7 +13,10 @@ class Tile(Enum):
 
 
 class MazeAdapter():
+    """Class responsible for adapting the maze generator to the game."""
     def __init__(self, width: int, height: int, seed: int) -> None:
+        """Initialize the MazeAdapter with specified
+        width, height, and seed for maze generation."""
         self.width: int = width
         self.height: int = height
         self._generator: MazeGenerator = MazeGenerator(
@@ -26,6 +29,8 @@ class MazeAdapter():
         self.grid: list[list[Tile]] = []
 
     def _remove_pacgum(self, total_pacgums: int, empty_space: set) -> None:
+        """Randomly place pacgums in the maze, ensuring
+        they do not overlap with spawn or super pacgum tiles."""
         coords = list(empty_space)
         random.shuffle(coords)
         if total_pacgums > len(coords) - 1:
@@ -37,6 +42,8 @@ class MazeAdapter():
                 self.grid[y][x] = Tile.PACGUM
 
     def load(self, total_pacgums: int) -> list[list[Tile]]:
+        """Load the maze grid with walls, empty spaces,
+        pacgums, and super pacgums."""
         adj_h: int = self.height * 2 + 1
         adj_w: int = self.width * 2 + 1
         raw_maze: list[list[int]] = self._generator._maze
@@ -70,11 +77,11 @@ class MazeAdapter():
 
         corners: list[tuple[int, int]] = [
             (1, 1),
-            (1, adj_w - 2),
-            (adj_h - 2, 1),
-            (adj_h - 2, adj_w - 2),
+            (1, adj_h - 2),
+            (adj_w - 2, 1),
+            (adj_w - 2, adj_h - 2),
         ]
-        for ry, rx in corners:
+        for rx, ry in corners:
             self.grid[ry][rx] = Tile.SUPER_PACGUM
 
         mid_y: int = (self.height // 2) * 2 + 1

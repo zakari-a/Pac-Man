@@ -13,10 +13,46 @@
 
     "level_max_time": 90,
 
-    "level": [
+    "levels": [
+        {
+            "width": 10,
+            "height": 10
+        },
+        {
+            "width": 12,
+            "height": 18
+        },
+        {
+            "width": 18,
+            "height": 18
+        },
         {
             "width": 5,
             "height": 5
+        },
+        {
+            "width": 13,
+            "height": 13
+        },
+        {
+            "width": 15,
+            "height": 15
+        },
+        {
+            "width": 19,
+            "height": 19
+        },
+        {
+            "width": 21,
+            "height": 21
+        },
+        {
+            "width": 17,
+            "height": 17
+        },
+        {
+            "width": 17,
+            "height": 11
         }
     ]
 }

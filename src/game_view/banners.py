@@ -3,7 +3,10 @@ from typing import Any
 
 
 class Banners():
+    """Class responsible for displaying victory and
+    game over banners on the screen."""
     def __init__(self, assets: Any, screen: Any, renderer: Any) -> None:
+        """Initialize the Banners class with assets, screen, and renderer."""
         self.screen = screen
         self.width, self.height = screen.get_size()
         self.assets = assets
@@ -17,12 +20,14 @@ class Banners():
         self.target_height = self.height / self.shrink_y
 
     def _move_frame(self) -> None:
+        """Update the frame counter based on elapsed time."""
         c_time = pygame.time.get_ticks()
         if c_time - self.frame_tick >= 1000:
             self.counter += 1
             self.frame_tick = pygame.time.get_ticks()
 
     def _victory(self, score: int) -> bool:
+        """Display the victory banner and countdown to the next level."""
         self._move_frame()
         self.renderer._draw_maze()
         banner = self.assets.victory
@@ -70,6 +75,7 @@ class Banners():
         return False
 
     def _game_over(self, done: bool) -> bool:
+        """Display the game over or finish banner based on the game state."""
         self._move_frame()
         banner = self.assets.game_over
         if done:

@@ -4,11 +4,13 @@ import json
 
 
 class ConfigFileError(Exception):
+    """Custom exception for configuration file errors."""
     pass
 
 
 @dataclass
 class Level:
+    """Class representing a game level with specified width and height."""
     width: int
     height: int
 
@@ -48,7 +50,10 @@ POSITIVE_FIELDS = {
 
 
 class Config:
+    """Class responsible for loading and
+    validating game configuration from a JSON file."""
     def __init__(self) -> None:
+        """Initialize the Config class with default values."""
         self.highscore_filename: str = ""
         self.lives: int = 0
         self.pacgum: int = 0
@@ -60,6 +65,7 @@ class Config:
         self.levels: list[Level] = []
 
     def remove_comments(self, text: str) -> str:
+        """Remove comments from the provided text."""
         clean: list[str] = []
         for line in text.splitlines():
             if line.lstrip().startswith("#"):
@@ -68,6 +74,8 @@ class Config:
         return "\n".join(clean)
 
     def load_json(self, filepath: str) -> dict[str, Any]:
+        """Load and parse a JSON configuration file,
+        removing comments and validating its structure."""
         if not filepath.lower().endswith('.json'):
             raise ConfigFileError(
                 f"-Error: Config file should end with '.json': {filepath}")
@@ -90,6 +98,8 @@ class Config:
         return configs
 
     def validate_levels(self, value: Any) -> list[Level] | None:
+        """Validate the 'levels' configuration value,
+        ensuring it is a list of Level objects."""
         if not isinstance(value, list) or not value:
             return None
         levels: list[Level] = []
@@ -106,6 +116,8 @@ class Config:
         return levels
 
     def load_config(self, filepath: str) -> None:
+        """Load and validate the configuration from a JSON file,
+        applying default values for missing or invalid entries."""
         data = self.load_json(filepath)
         for key, value in DEFAULT_CONFIG.items():
             if key not in data:

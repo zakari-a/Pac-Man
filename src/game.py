@@ -4,7 +4,7 @@ import random
 import json
 
 from src.maze.maze_adapter import MazeAdapter, Tile
-from src.assets.assetmanager import AssetManager, GhostType
+from src.assets_manager.assetmanager import AssetManager, GhostType
 from src.renderer.renderer import Renderer
 from src.config.config import Config
 from src.config.paths import highscore_path
@@ -14,8 +14,10 @@ from src.game_view.banners import Banners
 
 
 class Game():
+    """Manage the Pac-Man game state, input, rendering, and game loop."""
 
     def __init__(self, configs: Config) -> None:
+        """Initialize the game, its configuration, and runtime state."""
         self.configs = configs
 
         # pygame variables
@@ -85,6 +87,8 @@ class Game():
         self.stop_time = False
 
     def _init_level(self) -> None:
+        """Initialize the maze, entities, assets,
+        and UI for the current level."""
         if self.level_num == len(self.levels):
             self.game_state = GameState.GAME_OVER
             self.done = True
@@ -137,6 +141,7 @@ class Game():
             ghost._reset()
 
     def _handle_menu_input(self, event: pygame.event.Event) -> None:
+        """Handle keyboard input while the main menu is active."""
         now = pygame.time.get_ticks()
         if event.type != pygame.KEYDOWN:
             return
@@ -155,6 +160,7 @@ class Game():
                 self._init_level()
 
     def _handle_play_input(self, event: pygame.event.Event) -> None:
+        """Handle keyboard input while the game is being played."""
         if event.type != pygame.KEYDOWN:
             return
 
@@ -183,6 +189,7 @@ class Game():
             self.stop_time = not self.stop_time
 
     def _handle_inst_input(self, event: pygame.event.Event) -> None:
+        """Handle keyboard input on the instructions screen."""
         now = pygame.time.get_ticks()
         if event.type != pygame.KEYDOWN:
             return
@@ -200,6 +207,7 @@ class Game():
             self.game_state = GameState.MENU
 
     def _handle_pause_input(self, event: pygame.event.Event) -> None:
+        """Handle keyboard input while the game is paused."""
         if event.type != pygame.KEYDOWN:
             return
         if event.key == pygame.K_UP:
@@ -215,6 +223,7 @@ class Game():
                 self.lives = self.configs.lives
 
     def _handle_hs_input(self, event: pygame.event.Event) -> None:
+        """Handle keyboard input on the high-scores screen."""
         now = pygame.time.get_ticks()
         if event.type != pygame.KEYDOWN:
             return
@@ -233,6 +242,7 @@ class Game():
             self.game_state = GameState.MENU
 
     def _handle_score_input(self, event: pygame.event.Event) -> None:
+        """Handle keyboard input when entering a high-score name."""
         if event.type != pygame.KEYDOWN:
             return
 
@@ -258,6 +268,7 @@ class Game():
             self.score = 0
 
     def _check_empty_grid(self) -> bool:
+        """Check whether all Pac-Gums have been collected."""
         for row in self.grid:
             for tile in row:
                 if tile == Tile.PACGUM or tile == Tile.SUPER_PACGUM:
@@ -266,6 +277,8 @@ class Game():
         return True
 
     def _game_stats(self) -> None:
+        """Update and render the game statistics
+        (score, lives, high-score, time)."""
         spacing = 0.10
         start_x = self.width * 0.05
         start_y = self.height * spacing
@@ -289,6 +302,7 @@ class Game():
             start_y = self.height * spacing
 
     def _play(self) -> None:
+        """Update and render one frame of active gameplay."""
         if self.level_timer <= 0:
             self.game_state = GameState.GAME_OVER
             self.done = False
@@ -346,6 +360,7 @@ class Game():
                 self.lives = self.configs.lives
 
     def run(self) -> None:
+        """Run the main event, update, and rendering loop."""
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

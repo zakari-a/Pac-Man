@@ -1,0 +1,22 @@
+PAC-MAN
+========
+
+CONTROLS
+--------
+Arrow Keys   : Move / navigate menus
+Enter        : Select option
+Escape       : Pause the game
+
+CHEATS (for testing/evaluation purposes)
+-----------------------------------------
+F1  : Invincibility
+F2  : Level skip
+F3  : Freeze ghosts
+F4  : +1 life (7 lives max)
+F5  : Increase Pac-Man's speed
+F6  : Stop time
+
+CONFIGURATION
+-------------
+The game runs with default settings out of the box - just launch it,
+no setup required.

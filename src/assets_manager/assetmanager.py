@@ -5,6 +5,7 @@ import sys
 
 
 class GhostType(Enum):
+    """Enum representing the different types of ghosts in the game."""
     RED = 0
     BLUE = 1
     PINK = 2
@@ -12,7 +13,11 @@ class GhostType(Enum):
 
 
 class AssetManager():
+    """Class responsible for loading and managing game
+    assets such as images, sprites, and fonts."""
     def __init__(self, tile_size: int):
+        """Initialize the AssetManager with the specified
+        tile size and load all necessary assets."""
         self.wall_tiles: dict = {}
 
         self.pacman: list = []
@@ -28,19 +33,19 @@ class AssetManager():
         self.tile_size: int = tile_size
         try:
             self.font_10 = pygame.font.Font(
-                resource_path("src/assets/PressStart2P-Regular.ttf"), 10)
+                resource_path("assets/PressStart2P-Regular.ttf"), 10)
             self.font_15 = pygame.font.Font(
-                resource_path("src/assets/PressStart2P-Regular.ttf"), 15)
+                resource_path("assets/PressStart2P-Regular.ttf"), 15)
             self.font_20 = pygame.font.Font(
-                resource_path("src/assets/PressStart2P-Regular.ttf"), 20)
+                resource_path("assets/PressStart2P-Regular.ttf"), 20)
             self.font_35 = pygame.font.Font(
-                resource_path("src/assets/PressStart2P-Regular.ttf"), 35)
+                resource_path("assets/PressStart2P-Regular.ttf"), 35)
             self.background1 = pygame.image.load(
                 resource_path(
-                    "src/assets/pacman-backgroud.png")).convert_alpha()
+                    "assets/pacman-backgroud.png")).convert_alpha()
             self.background2 = pygame.image.load(
                 resource_path(
-                    "src/assets/commands_background.jpeg")).convert_alpha()
+                    "assets/commands_background.jpeg")).convert_alpha()
         except FileNotFoundError as e:
             print(e)
             sys.exit(1)
@@ -49,11 +54,13 @@ class AssetManager():
         self.finish: pygame.Surface
 
     def _load_walls(self) -> None:
+        """Load wall tile images from the spritesheet and
+        store them in a dictionary."""
         try:
             spritesheet = pygame.image.load(
-                resource_path("src/assets/wall_assets.png")).convert_alpha()
+                resource_path("assets/wall_assets.png")).convert_alpha()
         except FileNotFoundError:
-            print("Cant find 'wall_assets.png' in src/assets")
+            print("Cant find 'wall_assets.png' in assets")
             sys.exit(1)
         bases = {
             "wall":       spritesheet.subsurface(
@@ -100,11 +107,13 @@ class AssetManager():
             )
 
     def _load_pacman(self) -> None:
+        """Load Pac-Man sprite frames and death animation frames
+        from the spritesheet and store them in lists."""
         try:
             spritesheet = pygame.image.load(
-                resource_path("src/assets/pacman_assets.png")).convert_alpha()
+                resource_path("assets/pacman_assets.png")).convert_alpha()
         except FileNotFoundError:
-            print("Can't find 'pacman_assets.png' in src/assets")
+            print("Can't find 'pacman_assets.png' in assets")
             sys.exit(1)
         tmpr = []
         for i in range(4):
@@ -122,11 +131,13 @@ class AssetManager():
             self.pacman_death.append(_)
 
     def _load_ghosts(self) -> None:
+        """Load ghost sprite frames, scared ghost frames, and ghost eyes
+        from the spritesheet and store them in appropriate data structures."""
         try:
             spritesheet = pygame.image.load(
-                resource_path("src/assets/ghosts_assets.png")).convert_alpha()
+                resource_path("assets/ghosts_assets.png")).convert_alpha()
         except FileNotFoundError:
-            print("Can't find 'ghosts_assets.png' in src/assets")
+            print("Can't find 'ghosts_assets.png' in assets")
             sys.exit(1)
 
         types = [
@@ -148,8 +159,14 @@ class AssetManager():
             pygame.Rect(0, 320, 16, 16)).copy()
 
     def _load_items(self) -> None:
-        spritesheet = pygame.image.load(
-            resource_path("src/assets/items_assets.png")).convert_alpha()
+        """Load item images such as pacgum and super pacgum
+        from the spritesheet and store them in appropriate attributes."""
+        try:
+            spritesheet = pygame.image.load(
+                resource_path("assets/items_assets.png")).convert_alpha()
+        except FileNotFoundError:
+            print("Can't find 'items_assets.png' in assets")
+            sys.exit(1)
         self.pacgum = spritesheet.subsurface(
             pygame.Rect(pygame.Rect(0, 16, 16, 16)).copy()
         )
@@ -158,14 +175,16 @@ class AssetManager():
         )
 
     def _load_images(self) -> None:
+        """Load additional images such as victory, game over,
+        and finish banners from the spritesheet."""
         try:
             spritesheet = pygame.image.load(
-                resource_path("src/assets/victory.png")).convert_alpha()
+                resource_path("assets/victory.png")).convert_alpha()
             self.victory = spritesheet.subsurface(
                 pygame.Rect(pygame.Rect(40, 325, 1450, 345)).copy()
                 )
             spritesheet = pygame.image.load(
-                resource_path("src/assets/banners.png")).convert_alpha()
+                resource_path("assets/banners.png")).convert_alpha()
         except FileNotFoundError as e:
             print(e)
             sys.exit(1)
@@ -177,6 +196,7 @@ class AssetManager():
             )
 
     def load(self) -> None:
+        """Load all necessary game assets."""
         self._load_walls()
         self._load_pacman()
         self._load_ghosts()

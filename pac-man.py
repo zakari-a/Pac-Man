@@ -7,7 +7,7 @@ import sys
 try:
     configs = Config()
     if len(sys.argv) == 1:
-        configs.load_config(resource_path("src/assets/default_conf.json"))
+        configs.load_config(resource_path("src/config/default_conf.json"))
     else:
         configs.load_config(sys.argv[1])
 except ConfigFileError as e:
