@@ -105,16 +105,16 @@ class Renderer:
             pygame.display.flip()
             clock.tick(60)
 
-    def _draw_game_over_screen(self) -> None:
-        font = pygame.font.SysFont(None, 50)
-        small_font = pygame.font.SysFont(None, 30)
-        text = font.render("YOU DIED", True, "red")
-        prompt = small_font.render(
-            "Press R to Restart or Q to Quit", True, "white")
-        w, h = self.screen.get_size()
-        self.screen.blit(text, (w // 2 - text.get_width() // 2, h // 2 - 40))
-        self.screen.blit(prompt, (w // 2 - prompt.get_width() // 2,
-                                  h // 2 + 20))
+    # def _draw_game_over_screen(self) -> None:
+    #     font = pygame.font.SysFont(None, 50)
+    #     small_font = pygame.font.SysFont(None, 30)
+    #     text = font.render("YOU DIED", True, "red")
+    #     prompt = small_font.render(
+    #         "Press R to Restart or Q to Quit", True, "white")
+    #     w, h = self.screen.get_size()
+    #     self.screen.blit(text, (w // 2 - text.get_width() // 2, h // 2 - 40))
+    #     self.screen.blit(prompt, (w // 2 - prompt.get_width() // 2,
+    #                               h // 2 + 20))
 
     def _get_rotation(self, direction: tuple[int, int]) -> int:
         if direction == (1, 0):   # limen

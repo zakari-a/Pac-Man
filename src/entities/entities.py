@@ -12,8 +12,49 @@ class PacState(Enum):
     DYING = 0
     ALIVE = 1
 
+class Mouvements:
+    @staticmethod
+    def _get_speed(tile_size, position, direction, speed) -> int:
+        x, y = position
+        t = tile_size
+        if direction == (0, -1) or direction == (-1, 0):
+            if direction == (0, -1):
+                distance = y % t
+            else:
+                distance = x % t
+        else:
+            if direction == (0, 1):
+                distance = t - (y % t)
+            else:
+                distance = t - (x % t)
+        if distance == 0:
+            distance = t
+        if distance >= speed:
+            return speed
+        return distance
+    
+    @staticmethod
+    def _can_move(direction: tuple, position, o_speed, tile_size, grid) -> bool:
+        if direction == (0, 0):
+            return False
+        dx, dy = direction
+        x, y = position
+        speed = Mouvements._get_speed(tile_size, position,
+                                direction, o_speed)
+        tx = x + dx * speed
+        ty = y + dy * speed
+        size = tile_size
+        corners = [(tx, ty), (tx + size - 1, ty),
+                   (tx, ty + size - 1), (tx + size - 1, ty + size - 1)]
+        for cx, cy in corners:
+            px = cx // tile_size
+            py = cy // tile_size
+            if grid[py][px] == Tile.WALL:
+                return False
+        return (tx, ty)
+        
 
-class Pacman:
+class Pacman(Mouvements):
     def __init__(self, tilesize: int,
                  grid: list[list[Tile]], assets: AssetManager):
         self.grid = grid
@@ -62,25 +103,6 @@ class Pacman:
             return self.next_direction
         return direction
 
-    def _get_speed(self) -> int:
-        x, y = self.position
-        t = self.tile_size
-        if self.direction == (0, -1) or self.direction == (-1, 0):
-            if self.direction == (0, -1):
-                distance = y % t
-            else:
-                distance = x % t
-        else:
-            if self.direction == (0, 1):
-                distance = t - (y % t)
-            else:
-                distance = t - (x % t)
-        if distance == 0:
-            distance = t
-        if distance >= self.speed:
-            return self.speed
-        return distance
-
     def _update_pacposition(self) -> None:
         if self.direction == (0, 0) and self.next_direction == (0, 0):
             return
@@ -95,22 +117,10 @@ class Pacman:
                 ty = (y + ny * self.tile_size) // self.tile_size
                 if self.grid[ty][tx] != Tile.WALL:
                     self.direction = self.next_direction
-        dx, dy = self.direction
-        x, y = self.position
-        speed = self._get_speed()
-        # print(speed)
-        nx = x + (dx * speed)
-        ny = y + (dy * speed)
-        size = self.pac_size
-        corners = [
-            (nx, ny), (nx + size - 1, ny),
-            (nx, ny + size - 1), (nx + size - 1, ny + size - 1)]
-        for cx, cy in corners:
-            px = cx // self.tile_size
-            py = cy // self.tile_size
-            if self.grid[py][px] == Tile.WALL:
-                return
-        self.position = (nx, ny)
+        result = self._can_move(self.direction, self.position,
+                          self.speed, self.tile_size, self.grid)
+        if isinstance(result, tuple):
+            self.position = (result[0], result[1])
 
     def _set_pacmouvements(self, key: Any) -> None:
         if key == pygame.K_UP:
@@ -151,7 +161,7 @@ class Pacman:
 
     def _go_normal(self) -> None:
         c_time = pygame.time.get_ticks()
-        if c_time - self.super_time >= 10000:
+        if c_time - self.super_time >= 50000:
             self.super = 0
 
     def check_collision(self, ghosts: list[Ghost], invincible: bool) -> tuple:
@@ -178,7 +188,7 @@ class Pacman:
         return (0, (-1, -1))
 
 
-class Ghost:
+class Ghost(Mouvements):
     def __init__(self, g_type: GhostType, corner: tuple,
                  grid: list[list[Tile]], assets: AssetManager):
         self.tile_size = assets.tile_size
@@ -194,6 +204,8 @@ class Ghost:
         self.death_start = 0
         self.was_dead = 0
         self.one_turn = False
+        self.arrived = 0
+        self.distancetop = float('inf')
 
     def _reset(self) -> None:
         self.counter = 0
@@ -202,86 +214,20 @@ class Ghost:
         self.position = self.base_corner
         self.alive = True
 
-    def _get_position(self) -> tuple[int, int]:
-        return self.position
-
-    def _get_speed(self) -> Any:
-        x, y = self.position
-        t = self.tile_size
-        if self.direction == (0, -1) or self.direction == (-1, 0):
-            if self.direction == (0, -1):
-                distance = y % t
-            else:
-                distance = x % t
-        else:
-            if self.direction == (0, 1):
-                distance = t - (y % t)
-            else:
-                distance = t - (x % t)
-        if distance == 0:
-            distance = t
-        if distance >= self.speed:
-            return self.speed
-        return distance
-
-    def _can_move(self, direction: tuple) -> bool:
-        if direction == (0, 0):
-            return False
-        dx, dy = direction
-        x, y = self.position
-        speed = self._get_speed()
-        tx = x + dx * speed
-        ty = y + dy * speed
-        size = self.tile_size
-        corners = [(tx, ty), (tx + size - 1, ty),
-                   (tx, ty + size - 1), (tx + size - 1, ty + size - 1)]
-        for corner in corners:
-            cx, cy = corner
-            if self.grid[cy // size][cx // size] == Tile.WALL:
-                return False
-        return True
-
     def _move(self) -> None:
-        if not self._can_move(self.direction):
+        move = self._can_move(self.direction, self.position, self.speed,
+                                  self.tile_size, self.grid)
+        if isinstance(move, bool):
             return
-        dx, dy = self.direction
-        x, y = self.position
-        speed = self._get_speed()
-        nx = x + dx * speed
-        ny = y + dy * speed
-        self.position = (nx, ny)
+        self.position = (move[0], move[1])
 
-    def _valid_directions(self) -> list[tuple]:
-        directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
-        valids = []
-        for direction in directions:
-            if self._can_move(direction):
-                valids.append(direction)
-        return valids
-
-    # def _get_distance(self, x, y, tx, ty):
-    #     return ((tx - x) ** 2 + (ty - y) ** 2)
-
-    # def _choose_closest(self, target):
-    #     directions = self._valid_directions()
-    #     reverse = (-self.direction[0], -self.direction[1])
-    #     normal = [d for d in directions if d != reverse]
-    #     final = normal if normal else directions
-    #     tx = target[0] // self.tile_size
-    #     ty = target[1] // self.tile_size
-    #     gx = self.position[0] // self.tile_size
-    #     gy = self.position[1] // self.tile_size
-    #     b_direction = None
-    #     b_distance = None
-    #     for direction in final:
-    #         x, y = direction
-    #         nx = gx + x
-    #         ny = gy + y
-    #         distance = self._get_distance(nx, ny, tx, ty)
-    #         if b_distance is None or distance < b_distance:
-    #             b_distance = distance
-    #             b_direction = direction
-    #     self.direction = b_direction
+    # def _valid_directions(self) -> list[tuple]:
+    #     directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+    #     valids = []
+    #     for direction in directions:
+    #         if self._can_move(direction):
+    #             valids.append(direction)
+    #     return valids
 
     def _death_time(self) -> None:
         if not self.alive:
@@ -289,33 +235,51 @@ class Ghost:
             if c_time - self.death_start >= 6000:
                 self.alive = True
 
-    def _choose_cheapest(self, directions: list[tuple[int, int]],
+    def _choose_cheapest(self,
                          dist_map: dict[tuple, int],
-                         turn: bool) -> list:
+                         turn: bool, frightened: bool) -> list:
+        directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
         x, y = self.position
-        if not turn:
+        if not turn and self.arrived == 0:
             reverse = (-self.direction[0], -self.direction[1])
             normal = [d for d in directions if d != reverse]
             directions = normal if normal else directions
             # self.one_turn = 0
         # elif frightened and self.one_turn == 1
         b_direction = directions[0]
-        b_distance = float('inf')
+        if frightened:
+            b_distance = float('-inf')
+        else:
+            b_distance = float('inf')
         for direction in directions:
+            if isinstance(self._can_move(direction, self.position, self.speed,
+                                  self.tile_size, self.grid), bool):
+                continue
             dx, dy = direction
             nx = (x + dx * self.tile_size) // self.tile_size
             ny = (y + dy * self.tile_size) // self.tile_size
-            distance = dist_map.get((nx, ny), float('inf'))
-            if distance < b_distance:
+            if frightened:
+                distance = dist_map.get((nx, ny), float('-inf'))
+            else:
+                distance = dist_map.get((nx, ny), float('inf'))
+            if not frightened and distance < b_distance:
                 b_distance = distance
                 b_direction = direction
+            elif frightened and distance > b_distance:
+                b_distance = distance
+                b_direction = direction
+        self.distancetop = b_distance
+        if frightened and b_distance <= 1:
+            self.arrived = 1
+        else:
+            self.arrived = 0
         return [b_direction] if b_direction else []
 
     def _choose_direction(self, dist_map: dict[tuple, int],
-                          turn: bool) -> None:
-        valids = self._valid_directions()
-        if len(valids) > 1:
-            valids = self._choose_cheapest(valids, dist_map, turn)
+                          turn: bool, frightened: bool) -> None:
+        # valids = self._valid_directions()
+        # if len(valids) > 1:
+        valids = self._choose_cheapest(dist_map, turn, frightened)
         if valids:
             self.direction = valids[0]
 
@@ -327,17 +291,17 @@ class Ghost:
 
     def _update(self, pacman: Pacman, red_pos: tuple[int, int]) -> None:
         x, y = self.position
+        frightened = pacman.super and (self.was_dead == 0)
         if x % self.tile_size == 0 and y % self.tile_size == 0:
             dist_map = self.pathfinder(pacman, red_pos)
-            frightened = pacman.super and (self.was_dead == 0)
             if not frightened:
-                self.one_turn = False
                 turn = False
             else:
-                turn = not self.one_turn
-                if turn:
-                    self.one_turn = True
-            self._choose_direction(dist_map, turn)
+                if self.distancetop <= 2:
+                    turn = True
+                else:
+                    turn = False
+            self._choose_direction(dist_map, turn, frightened)
         self._move()
         self._move_frame()
 
@@ -370,9 +334,9 @@ class Ghost:
                 target_y = ry + 2 * (ref_py - ry)
                 return (target_x, target_y)
         else:
-            return (self.base_corner[0] // self.tile_size,
-                    self.base_corner[1] // self.tile_size)
-        return (px, py)
+            # return (self.base_corner[0] // self.tile_size,
+            #         self.base_corner[1] // self.tile_size)
+            return (px, py)
 
     def _get_neighbours(self, position: tuple) -> list:
         valids = []
