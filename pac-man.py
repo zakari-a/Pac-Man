@@ -10,6 +10,7 @@ try:
         configs.load_config(resource_path("src/config/default_conf.json"))
     else:
         configs.load_config(sys.argv[1])
+
 except ConfigFileError as e:
     print(e)
     sys.exit(1)

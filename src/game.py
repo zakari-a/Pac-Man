@@ -1,6 +1,5 @@
 import pygame
 import sys
-import random
 import json
 
 from src.maze.maze_adapter import MazeAdapter, Tile
@@ -22,8 +21,6 @@ class Game():
 
         # pygame variables
         pygame.init()
-        pygame.key.set_repeat()
-        pygame.font.init()
         self.screen = pygame.display.set_mode((1280, 720), pygame.SCALED)
         pygame.display.set_caption("Pac-Man")
         self.width, self.height = self.screen.get_size()
@@ -55,6 +52,7 @@ class Game():
         self.levels = self.configs.levels
         self.done = False
         self.level_timer: float = self.configs.level_max_time
+        self.wideview = False
 
         # key variables
         self.last_move_time = 0
@@ -80,6 +78,14 @@ class Game():
         self.seed: int = 0
         self._init_level()
 
+        self.menu = Menu(self.assets, self.screen)
+        self.inst = Instructions(self.assets, self.screen)
+        self.hs = HighScores(
+            self.assets, self.screen, self.highscores,
+            self.configs.highscore_filename)
+        self.pause = Paused(self.assets, self.screen)
+        self.banners = Banners(self.assets, self.screen, self.renderer)
+
         # cheat mode
         self.invincible = False
         self.freeze = False
@@ -94,6 +100,7 @@ class Game():
             self.done = True
             return
 
+        self.wideview = False
         self.invincible = False
         self.freeze = False
         self.super_speed = False
@@ -101,7 +108,7 @@ class Game():
         self.level_timer = self.configs.level_max_time
         level = self.levels[self.level_num]
         if self.level_num != 0:
-            self.seed = random.randint(1, 9999)
+            self.seed = 0
         else:
             self.seed = self.configs.seed
 
@@ -112,7 +119,12 @@ class Game():
         rows = len(self.grid)
         cols = len(self.grid[0])
 
-        self.tile_size = min(self.width // cols, self.height // rows)
+        Hud = 0
+        if cols - rows >= 6:
+            self.wideview = True
+            Hud = 100
+        self.tile_size = min(self.width // cols, (self.height - Hud) // rows)
+
         self.assets = AssetManager(self.tile_size)
         self.assets.load()
 
@@ -126,14 +138,6 @@ class Game():
             Ghost(types[i], self.corners[i], self.grid, self.assets)
             for i in range(len(types))
             ]
-
-        self.menu = Menu(self.assets, self.screen)
-        self.inst = Instructions(self.assets, self.screen)
-        self.hs = HighScores(
-            self.assets, self.screen, self.highscores,
-            self.configs.highscore_filename)
-        self.pause = Paused(self.assets, self.screen)
-        self.banners = Banners(self.assets, self.screen, self.renderer)
 
         self.pacman = Pacman(self.tile_size, self.grid, self.assets)
         self.pacman._find_spawn()
@@ -158,6 +162,8 @@ class Game():
             self.game_state = self.menu.menu_list[self.menu.index][1]
             if self.game_state == GameState.PLAYING:
                 self._init_level()
+        elif event.key == pygame.K_ESCAPE:
+            self.running = False
 
     def _handle_play_input(self, event: pygame.event.Event) -> None:
         """Handle keyboard input while the game is being played."""
@@ -166,6 +172,7 @@ class Game():
 
         self.pacman._set_pacmouvements(event.key)
         if event.key == pygame.K_ESCAPE:
+            self.freeze = True
             self.game_state = GameState.PAUSED
 
         elif event.key == pygame.K_F1:
@@ -217,6 +224,7 @@ class Game():
 
         elif event.key == pygame.K_RETURN:
             self.game_state = self.pause.paused_list[self.pause.index][1]
+            self.freeze = False
             if self.game_state == GameState.MENU:
                 self.level_num = 0
                 self.score = 0
@@ -266,6 +274,7 @@ class Game():
             self.hs._update_highsocores(self.score)
             self.level_num = 0
             self.score = 0
+            self.done = False
 
     def _check_empty_grid(self) -> bool:
         """Check whether all Pac-Gums have been collected."""
@@ -280,18 +289,18 @@ class Game():
         """Update and render the game statistics
         (score, lives, high-score, time)."""
         spacing = 0.10
-        start_x = self.width * 0.05
+        start_x = self.width * 0.07
         start_y = self.height * spacing
         texts = ["SCORE:", f"{self.score}",
                  "LIVES:", f"{self.lives}",
-                 "HIGHSCORE:", f"{self.hs.highscore}",
+                 "LEVEL:", f"{self.level_num + 1}",
                  "TIME:", f"{int(self.level_timer)}"]
         if not self.stop_time:
             self.level_timer -= self.dt
         for i, text in enumerate(texts):
             if i == 4:
                 spacing = 0.10
-                start_x = self.width * 0.80
+                start_x = self.width * 0.82
                 start_y = self.height * spacing
 
             label_surfacee = self.assets.font_20.render(text, True, "white")
@@ -301,6 +310,21 @@ class Game():
                 spacing += 0.05
             start_y = self.height * spacing
 
+    def _wideview_stats(self) -> None:
+        """Update and render the game statistics for wide-view mode."""
+        texts = [f"SCORE:   {self.score}",
+                 f"TIME:   {int(self.level_timer)}",
+                 f"LIVES:   {self.lives}",
+                 f"LEVEL:   {self.level_num + 1}",]
+
+        coords = [(self.width * 0.12, self.height * 0.035),
+                  (self.width * 0.70, self.height * 0.035),
+                  (self.width * 0.12, self.height * 0.95),
+                  (self.width * 0.70, self.height * 0.95)]
+        for i, text in enumerate(texts):
+            label_surfacee = self.assets.font_20.render(text, True, "white")
+            self.screen.blit(label_surfacee, coords[i])
+
     def _play(self) -> None:
         """Update and render one frame of active gameplay."""
         if self.level_timer <= 0:
@@ -309,7 +333,8 @@ class Game():
 
         self.screen.fill("black")
         self.renderer._draw_maze()
-        self._game_stats()
+        self._wideview_stats() if self.wideview \
+            else self._game_stats()
         if self._check_empty_grid():
             self.level_num += 1
             self._init_level()
@@ -398,6 +423,10 @@ class Game():
 
             elif self.game_state == GameState.PAUSED:
                 self.renderer._draw_maze()
+                self.renderer._draw_pacman(self.pacman)
+                self.renderer._draw_ghosts(
+                    self.ghosts, self.pacman,
+                    self.ghosts[0].position, self.freeze)
                 self.pause.run()
 
             elif self.game_state == GameState.GAME_OVER:

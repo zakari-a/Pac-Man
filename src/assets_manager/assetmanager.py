@@ -42,7 +42,7 @@ class AssetManager():
                 resource_path("assets/PressStart2P-Regular.ttf"), 35)
             self.background1 = pygame.image.load(
                 resource_path(
-                    "assets/pacman-backgroud.png")).convert_alpha()
+                    "assets/menu_backgroud.png")).convert_alpha()
             self.background2 = pygame.image.load(
                 resource_path(
                     "assets/commands_background.jpeg")).convert_alpha()
@@ -179,7 +179,7 @@ class AssetManager():
         and finish banners from the spritesheet."""
         try:
             spritesheet = pygame.image.load(
-                resource_path("assets/victory.png")).convert_alpha()
+                resource_path("assets/victory_banner.png")).convert_alpha()
             self.victory = spritesheet.subsurface(
                 pygame.Rect(pygame.Rect(40, 325, 1450, 345)).copy()
                 )

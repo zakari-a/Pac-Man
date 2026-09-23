@@ -12,6 +12,7 @@ class PacState(Enum):
     DYING = 0
     ALIVE = 1
 
+
 class Mouvements:
     @staticmethod
     def _get_speed(tile_size, position, direction, speed) -> int:
@@ -32,15 +33,16 @@ class Mouvements:
         if distance >= speed:
             return speed
         return distance
-    
+
     @staticmethod
-    def _can_move(direction: tuple, position, o_speed, tile_size, grid) -> bool:
+    def _can_move(direction: tuple, position,
+                  o_speed, tile_size, grid) -> bool:
         if direction == (0, 0):
             return False
         dx, dy = direction
         x, y = position
         speed = Mouvements._get_speed(tile_size, position,
-                                direction, o_speed)
+                                      direction, o_speed)
         tx = x + dx * speed
         ty = y + dy * speed
         size = tile_size
@@ -52,7 +54,7 @@ class Mouvements:
             if grid[py][px] == Tile.WALL:
                 return False
         return (tx, ty)
-        
+
 
 class Pacman(Mouvements):
     def __init__(self, tilesize: int,
@@ -118,7 +120,7 @@ class Pacman(Mouvements):
                 if self.grid[ty][tx] != Tile.WALL:
                     self.direction = self.next_direction
         result = self._can_move(self.direction, self.position,
-                          self.speed, self.tile_size, self.grid)
+                                self.speed, self.tile_size, self.grid)
         if isinstance(result, tuple):
             self.position = (result[0], result[1])
 
@@ -216,7 +218,7 @@ class Ghost(Mouvements):
 
     def _move(self) -> None:
         move = self._can_move(self.direction, self.position, self.speed,
-                                  self.tile_size, self.grid)
+                              self.tile_size, self.grid)
         if isinstance(move, bool):
             return
         self.position = (move[0], move[1])
@@ -253,7 +255,7 @@ class Ghost(Mouvements):
             b_distance = float('inf')
         for direction in directions:
             if isinstance(self._can_move(direction, self.position, self.speed,
-                                  self.tile_size, self.grid), bool):
+                                         self.tile_size, self.grid), bool):
                 continue
             dx, dy = direction
             nx = (x + dx * self.tile_size) // self.tile_size
@@ -297,7 +299,7 @@ class Ghost(Mouvements):
             if not frightened:
                 turn = False
             else:
-                if self.distancetop <= 2:
+                if self.distancetop <= 4:
                     turn = True
                 else:
                     turn = False

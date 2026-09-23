@@ -56,11 +56,8 @@ class MazeAdapter():
                 cy = y * 2 + 1
                 cx = x * 2 + 1
 
-                if val == 15:
-                    self.grid[cy][cx] = Tile.EMPTY
-                    continue
-
                 self.grid[cy][cx] = Tile.EMPTY
+
                 empty_space.add((cx, cy))
                 if not (val & 1):
                     self.grid[cy - 1][cx] = Tile.EMPTY

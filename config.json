@@ -1,4 +1,6 @@
 {
+    "highscore_filename": ".json",
+
     "lives": 3,
 
     "points_per_pacgum": 1,
@@ -44,15 +46,15 @@
         },
         {
             "width": 21,
-            "height": 21
+            "height": 8
+        },
+        {
+            "width": 50,
+            "height": 40
         },
         {
             "width": 17,
-            "height": 17
-        },
-        {
-            "width": 17,
-            "height": 11
+            "height": 14
         }
     ]
 }

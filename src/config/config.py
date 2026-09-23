@@ -70,6 +70,11 @@ class Config:
         for line in text.splitlines():
             if line.lstrip().startswith("#"):
                 continue
+            elif line.lstrip().startswith("//"):
+                continue
+            elif line.lstrip().startswith("/*") \
+                    and line.lstrip().endswith("*/"):
+                continue
             clean.append(line)
         return "\n".join(clean)
 
@@ -88,7 +93,7 @@ class Config:
                 f"-Error: Can't find the file provided: {filepath}")
         except PermissionError:
             raise ConfigFileError(
-                "-Error: The is no permission to read the provided file")
+                "-Error: There is no permission to read the provided file")
 
         clean_text = self.remove_comments(text)
         try:
@@ -110,7 +115,7 @@ class Config:
             h = item.get("height")
             if not isinstance(w, int) or not isinstance(h, int):
                 return None
-            if w < 5 or h < 5 or w > 60 or h > 60:
+            if w < 5 or h < 5 or w > 50 or h > 50:
                 return None
             levels.append(Level(width=w, height=h))
         return levels
@@ -139,6 +144,12 @@ class Config:
                     continue
                 valid[key] = levels
                 continue
+            if key == "highscore_filename":
+                if value.count(".") != 1 or not value.endswith(".json"):
+                    print("-Warning : invalid highscore filename "
+                          "(ex..'.json'), using default")
+                    valid[key] = DEFAULT_CONFIG[key]
+                    continue
 
             expected = type(DEFAULT_CONFIG[key])
             if type(value) is expected:

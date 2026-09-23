@@ -6,7 +6,7 @@ MYPY = venv/bin/mypy
 
 install:
 	python3 -m venv venv
-	$(PIP) install -r requirements
+	$(PIP) install -r libs/requirements
 
 run:
 	$(PY) pac-man.py config.json
@@ -15,7 +15,7 @@ debug:
 	$(PY) -m pdb pac-man.py config.json
 
 package:
-	$(PK) --onedir --name PacMan --icon="assets/icon.ico" \
+	$(PK) --onefile --name PacMan --icon="assets/icon.ico" \
 			--add-data "assets:assets" \
 			--add-data "src/config/default_conf.json:src/config" \
 			pac-man.py

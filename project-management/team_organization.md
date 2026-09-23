@@ -13,6 +13,7 @@ interface between the two halves.
 
 **Teammate B — zael-has**
 - Maze adaptation and sprites loading.
+- Game engine, main loop, and state management.
 - Level progression and configuration wiring.
 - Score, lives, timer tracking and highscore persistence.
 - Menus, pause screen, instructions and banners.
