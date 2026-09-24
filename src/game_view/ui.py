@@ -27,6 +27,7 @@ class Menu():
         self.background: pygame.Surface = pygame.transform.scale(
             assets.background1, (self.width, self.height))
         self.font = assets.font_20
+        self.font2 = assets.font_10
         self.menu_list = [
             ("START GAME", GameState.PLAYING),
             ("INSTRUCTIONS", GameState.INSTRUCTIONS),
@@ -36,6 +37,7 @@ class Menu():
 
     def run(self) -> None:
         """Render the main menu on the screen."""
+        self.screen.blit(self.background, (0, 0))
         spacing = 0.50
         start_x = self.width * 0.10
         start_y = self.height * spacing
@@ -44,8 +46,8 @@ class Menu():
             if i == self.index:
                 color = "yellow"
                 label = f"→ {label}"
-            label_surfacee = self.font.render(label, True, color)
-            self.screen.blit(label_surfacee, (start_x, start_y))
+            label_surface = self.font.render(label, True, color)
+            self.screen.blit(label_surface, (start_x, start_y))
             spacing += 0.07
             start_y = self.height * spacing
 
@@ -277,6 +279,7 @@ class HighScores():
 
     def run(self) -> None:
         """Render the high scores screen on the display."""
+        self.screen.blit(self.background, (0, 0))
         label_surface = self.font3.render("HIGHSCORES", True, "yellow")
         label_surface2 = self.font3.render("__________", True, "darkblue")
         box_rect = pygame.Rect(self.width * 0.02, self.height * 0.02,

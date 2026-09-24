@@ -18,7 +18,8 @@ class Mouvements:
     """It represents basic mouvement logic that should be inherited by the
     pacman and the ghosts."""
     @staticmethod
-    def _get_speed(tile_size: int, position: tuple, direction: tuple, speed: int) -> int:
+    def _get_speed(tile_size: int, position: tuple,
+                   direction: tuple, speed: float) -> int | Any:
         """It calculates the suitable speed for the entities.
 Args:
     tile_size(int): the size of a tile.
@@ -47,8 +48,8 @@ Returns:
         return distance
 
     @staticmethod
-    def _can_move(direction: tuple, position: tuple,
-                  o_speed: int, tile_size: int, grid: list[list[Tile]]) -> bool | tuple:
+    def _can_move(direction: tuple, position: tuple, o_speed: float,
+                  tile_size: int, grid: list[list[Tile]]) -> bool | tuple:
         """It checks if the entity can move in the given direction.
 Args:
     direction(tuple): the entetie's direction.
@@ -57,7 +58,8 @@ Args:
     tile_size(int): the size of a tile.
     grid(list[list[Tile]]): the maze grid.
 Returns:
-    bool | tuple: True if the entity can move, False otherwise. If True, returns the new position.
+    bool | tuple: True if the entity can move,
+    False otherwise. If True, returns the new position.
 """
         if direction == (0, 0):
             return False
@@ -100,7 +102,7 @@ class Pacman(Mouvements):
         self.pac_size = self.tile_size
         self.position = self.spawn
         self.time = pygame.time.get_ticks()
-        self.speed = max(1, round(tilesize / 8))
+        self.speed = max(1, round(tilesize / 12))
         self.counter = 0
         self.death_start = 0
         self.super = 0
@@ -137,7 +139,8 @@ class Pacman(Mouvements):
         raise ValueError("No spawn tile found in maze")
 
     def _fast_mouvements(self) -> tuple:
-        """It checks if the pacman can move in the opposite direction of its current direction.
+        """It checks if the pacman can move in
+        the opposite direction of its current direction.
         Args:
             None
         Returns:
@@ -155,7 +158,8 @@ class Pacman(Mouvements):
         return direction
 
     def _update_pacposition(self) -> None:
-        """Updates the pacman's position based on its current direction and speed.
+        """Updates the pacman's position based
+        on its current direction and speed.
         Args:
             None
         Returns:
@@ -210,11 +214,13 @@ class Pacman(Mouvements):
 
     def eat(self, ghosts: list[Ghost],
             pacgum_points: int, supergum_points: int) -> int:
-        """Checks if the pacman is on a pacgum or super pacgum tile and eats it.
+        """Checks if the pacman is on a pacgum or
+        super pacgum tile and eats it.
         Args:
             ghosts(list[Ghost]): The list of ghosts in the game.
             pacgum_points(int): The points awarded for eating a pacgum.
-            supergum_points(int): The points awarded for eating a super pacgum.
+            supergum_points(int): The points awarded
+                                for eating a super pacgum.
         Returns:
             int: The points awarded for eating the tile.
         """
@@ -253,10 +259,9 @@ class Pacman(Mouvements):
             ghosts(list[Ghost]): The list of ghosts in the game.
             invincible(bool): Whether the pacman is invincible.
         Returns:
-            tuple: A tuple containing the collision result and the ghost's position.
+            tuple: A tuple containing the collision
+            result and the ghost's position.
         """
-        if invincible:
-            return (0, (-1, -1))
         margin = int(self.tile_size * 0.2)
         px = self.position[0] + margin
         py = self.position[1] + margin
@@ -273,6 +278,8 @@ class Pacman(Mouvements):
             if overlapping:
                 if self.super and ghost.was_dead == 0:
                     return (2, pos)
+                if invincible:
+                    return (0, (-1, -1))
                 self.state = self.assets.pacman_death
                 return (1, pos)
         return (0, (-1, -1))
@@ -281,7 +288,8 @@ class Pacman(Mouvements):
 class Ghost(Mouvements):
     """It represents the ghost entity."""
     def __init__(self, g_type: GhostType, corner: tuple,
-                 grid: list[list[Tile]], assets: AssetManager):
+                 grid: list[list[Tile]], assets: AssetManager,
+                 ghost_eyes: pygame.Surface):
         """Initializes the ghost entity.
         Args:
             g_type(GhostType): The type of the ghost.
@@ -299,13 +307,14 @@ class Ghost(Mouvements):
         self.position = corner
         self.counter = 0
         self.direction = (0, 0)
-        self.speed = max(1, round(self.tile_size / 20))
+        self.speed = max(0.6, round(self.tile_size / 20))
         self.alive = True
         self.death_start = 0
         self.was_dead = 0
         self.one_turn = False
         self.arrived = 0
         self.distancetop = float('inf')
+        self.eyes: pygame.Surface = ghost_eyes
 
     def _reset(self) -> None:
         """Resets the ghost entity to its initial state.
@@ -356,7 +365,8 @@ class Ghost(Mouvements):
     def _choose_cheapest(self,
                          dist_map: dict[tuple, int],
                          turn: bool, frightened: bool) -> list:
-        """Chooses the cheapest direction for the ghost to move based on the distance map.
+        """Chooses the cheapest direction for the ghost
+        to move based on the distance map.
         Args:
             dist_map (dict[tuple, int]): The distance map.
             turn (bool): Whether the ghost is turning.
@@ -386,7 +396,7 @@ class Ghost(Mouvements):
             else:
                 distance = dist_map.get((nx, ny), float('inf'))
             if ((not frightened and distance < b_distance)
-                or (frightened and distance > b_distance)):
+                    or (frightened and distance > b_distance)):
                 b_distance = distance
                 b_direction = direction
             # elif frightened and distance > b_distance:
@@ -401,8 +411,9 @@ class Ghost(Mouvements):
         return [b_direction] if b_direction else []
 
     def _choose_direction(self, dist_map: dict[tuple, int],
-                          turn: bool, frightened: bool) -> None:
-        """Chooses the direction for the ghost to move based on the distance map.
+                          turn: bool, frightened: Any) -> None:
+        """Chooses the direction for the ghost
+        to move based on the distance map.
         Args:
             dist_map (dict[tuple, int]): The distance map.
             turn (bool): Whether the ghost is turning.
@@ -429,7 +440,8 @@ class Ghost(Mouvements):
             self.time = pygame.time.get_ticks()
 
     def _update(self, pacman: Pacman, red_pos: tuple[int, int]) -> None:
-        """Updates the ghost's state and position based on the pacman's position and the distance map.
+        """Updates the ghost's state and position based
+        on the pacman's position and the distance map.
         Args:
             pacman (Pacman): The pacman entity.
             red_pos (tuple[int, int]): The position of the red ghost.
@@ -445,16 +457,17 @@ class Ghost(Mouvements):
             else:
                 turn = True if self.distancetop <= 7 else False
                 # if self.distancetop <= 4:
-                    # turn = True
+                #     turn = True
                 # else:
-                    # turn = False
+                #     turn = False
             self._choose_direction(dist_map, turn, frightened)
-        self._move()
+        # self._move()
         self._move_frame()
 
     def _chase_type(self, pacman: Pacman,
                     red_pos: tuple[int, int]) -> tuple[int, int]:
-        """Determines the target position for the ghost based on its type and the pacman's state.
+        """Determines the target position for
+        the ghost based on its type and the pacman's state.
         Args:
             pacman (Pacman): The pacman entity.
             red_pos (tuple[int, int]): The position of the red ghost.
@@ -493,7 +506,8 @@ class Ghost(Mouvements):
             return (px, py)
 
     def _get_neighbours(self, position: tuple) -> list:
-        """Returns the valid neighbouring positions for the ghost based on its current position.
+        """Returns the valid neighbouring positions
+        for the ghost based on its current position.
         Args:
             position (tuple[int, int]): The current position of the ghost.
         Returns:
@@ -516,7 +530,8 @@ class Ghost(Mouvements):
 
     def pathfinder(self, pacman: Pacman,
                    red_pos: tuple[int, int]) -> dict[tuple, int]:
-        """Generates a distance map for the ghost to chase the pacman based on its type and the maze grid.
+        """Generates a distance map for the ghost to chase
+        the pacman based on its type and the maze grid.
         Args:
             pacman (Pacman): The pacman entity.
             red_pos (tuple[int, int]): The position of the red ghost.

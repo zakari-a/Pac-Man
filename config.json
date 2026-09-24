@@ -1,5 +1,5 @@
 {
-    "highscore_filename": ".json",
+    "highscore_filename": "test.json",
 
     "lives": 3,
 
@@ -49,8 +49,8 @@
             "height": 8
         },
         {
-            "width": 50,
-            "height": 40
+            "width": 30,
+            "height": 30
         },
         {
             "width": 17,

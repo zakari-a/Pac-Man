@@ -192,7 +192,8 @@ class Renderer:
 
     def _draw_ghosts(self, ghosts: list[Ghost], pacman: Pacman,
                      red_pos: tuple[int, int], freeze: bool) -> None:
-        """Draws the ghosts on the screen based on their current state and position.
+        """Draws the ghosts on the screen based
+        on their current state and position.
         Args:
             ghosts (list[Ghost]): The list of ghost entities.
             pacman (Pacman): The pacman entity.
@@ -209,15 +210,18 @@ class Renderer:
             else:
                 figures = self.assets.ghosts
             if ghost.alive:
-                if not freeze:
-                    ghost._update(pacman, red_pos)
+                ghost._update(pacman, red_pos)
+                if freeze:
+                    ghost._move_frame()
+                else:
+                    ghost._move()
                 if not frightened:
                     scaled_ghosts = pygame.transform.scale(
                         figures[ghost.type][ghost.counter % 4],
                         (self.tile_size, self.tile_size))
                     scaled_eyes = pygame.transform.scale(
-                        self.assets.ghost_eyes, (self.tile_size // 2,
-                                                 self.tile_size // 2))
+                        ghost.eyes, (self.tile_size // 2,
+                                     self.tile_size // 2))
                 else:
                     scaled_ghosts = pygame.transform.scale(
                         figures[ghost.counter % len(figures)],

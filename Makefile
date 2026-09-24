@@ -15,8 +15,7 @@ debug:
 	$(PY) -m pdb pac-man.py config.json
 
 package:
-	$(PK) --onefile --name PacMan --icon="assets/icon.ico" \
-			--add-data "assets:assets" \
+	$(PK) --onefile --name PacMan --add-data "assets:assets" \
 			--add-data "src/config/default_conf.json:src/config" \
 			pac-man.py
 	cp src/INSTRUCTIONS.txt dist

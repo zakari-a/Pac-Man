@@ -25,7 +25,7 @@ class AssetManager():
 
         self.ghosts: dict = {}
         self.scared_ghost: list = []
-        self.ghost_eyes: pygame.Surface
+        self.ghost_eyes: list[pygame.Surface]
         self.death_eyes: pygame.Surface
 
         self.pacgum: pygame.Surface
@@ -127,6 +127,7 @@ class AssetManager():
                 tmpr.append(tmp)
             self.pacman.append(frame)
             self.pacman_death.append(d_frame)
+
         for _ in tmpr:
             self.pacman_death.append(_)
 
@@ -155,8 +156,11 @@ class AssetManager():
                 self.scared_ghost.append(spritesheet.subsurface(
                     pygame.Rect(col * 32, row * 32, 32, 32)).copy())
 
-        self.ghost_eyes = spritesheet.subsurface(
-            pygame.Rect(0, 320, 16, 16)).copy()
+        self.ghost_eyes = []
+        for i in range(4, 8):
+            eyes = spritesheet.subsurface(
+                pygame.Rect(i * 16, 320, 16, 16)).copy()
+            self.ghost_eyes.append(eyes)
 
     def _load_items(self) -> None:
         """Load item images such as pacgum and super pacgum

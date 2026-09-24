@@ -84,7 +84,6 @@ class Game():
             self.assets, self.screen, self.highscores,
             self.configs.highscore_filename)
         self.pause = Paused(self.assets, self.screen)
-        self.banners = Banners(self.assets, self.screen, self.renderer)
 
         # cheat mode
         self.invincible = False
@@ -124,18 +123,19 @@ class Game():
             self.wideview = True
             Hud = 100
         self.tile_size = min(self.width // cols, (self.height - Hud) // rows)
-
         self.assets = AssetManager(self.tile_size)
         self.assets.load()
 
         self.renderer = Renderer(self.screen, self.assets, self.grid)
+        self.banners = Banners(self.assets, self.screen, self.renderer)
         self.renderer._set_offset()
         self.corners = self.renderer._get_corners()
 
         types = [GhostType.RED, GhostType.BLUE,
                  GhostType.PINK, GhostType.ORANGE]
         self.ghosts = [
-            Ghost(types[i], self.corners[i], self.grid, self.assets)
+            Ghost(types[i], self.corners[i], self.grid,
+                  self.assets, self.assets.ghost_eyes[i])
             for i in range(len(types))
             ]
 
@@ -177,6 +177,7 @@ class Game():
 
         elif event.key == pygame.K_F1:
             self.invincible = not self.invincible
+
         elif event.key == pygame.K_F2:
             self.level_num += 1
             self.score += self.configs.pacgum * self.pacgum_points
@@ -302,8 +303,10 @@ class Game():
                 spacing = 0.10
                 start_x = self.width * 0.82
                 start_y = self.height * spacing
-
-            label_surfacee = self.assets.font_20.render(text, True, "white")
+            color = "white"
+            if i == 7:
+                color = "red" if self.stop_time else "white"
+            label_surfacee = self.assets.font_20.render(text, True, color)
             self.screen.blit(label_surfacee, (start_x, start_y))
             spacing += 0.05
             if (spacing * 10) % 2 == 0:
@@ -321,9 +324,28 @@ class Game():
                   (self.width * 0.70, self.height * 0.035),
                   (self.width * 0.12, self.height * 0.95),
                   (self.width * 0.70, self.height * 0.95)]
+        if not self.stop_time:
+            self.level_timer -= self.dt
         for i, text in enumerate(texts):
             label_surfacee = self.assets.font_20.render(text, True, "white")
             self.screen.blit(label_surfacee, coords[i])
+
+    def _invicibility_icon(self) -> None:
+        """Display an invincibility icon on
+        the screen if the player is invincible."""
+        if self.invincible:
+            x, y = self.width * 0.05, self.height * 0.5
+            if self.wideview:
+                x, y = self.width * 0.45, self.height * 0.02
+
+            box_rect = pygame.Rect(
+                    x, y,
+                    self.width * 0.1, self.height * 0.05)
+            pygame.draw.rect(
+                self.screen, "darkblue", box_rect, width=3, border_radius=5)
+            label_surface = self.menu.font2.render("INVINCIBLE", True, "white")
+            label_rect = label_surface.get_rect(center=box_rect.center)
+            self.screen.blit(label_surface, label_rect)
 
     def _play(self) -> None:
         """Update and render one frame of active gameplay."""
@@ -335,6 +357,7 @@ class Game():
         self.renderer._draw_maze()
         self._wideview_stats() if self.wideview \
             else self._game_stats()
+        self._invicibility_icon()
         if self._check_empty_grid():
             self.level_num += 1
             self._init_level()
@@ -404,7 +427,6 @@ class Game():
                     self._handle_score_input(event)
 
             if self.game_state == GameState.MENU:
-                self.screen.blit(self.menu.background, (0, 0))
                 self.menu.run()
 
             elif self.game_state == GameState.PLAYING:

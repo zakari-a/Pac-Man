@@ -115,7 +115,7 @@ class Config:
             h = item.get("height")
             if not isinstance(w, int) or not isinstance(h, int):
                 return None
-            if w < 5 or h < 5 or w > 50 or h > 50:
+            if w < 5 or h < 5 or w > 30 or h > 30:
                 return None
             levels.append(Level(width=w, height=h))
         return levels
