@@ -66,6 +66,11 @@ class Game():
                 self.highscores = json.load(f)
         except (json.JSONDecodeError, FileNotFoundError):
             self.highscores = []
+        except PermissionError:
+            print(
+                f"Needs permission to open"
+                f"'{self.configs.highscore_filename}'")
+            exit(1)
         self.h_s = self.highscores[0]["score"] if self.highscores else 0
 
         # player variables
@@ -180,7 +185,11 @@ class Game():
 
         elif event.key == pygame.K_F2:
             self.level_num += 1
-            self.score += self.configs.pacgum * self.pacgum_points
+            size = ((len(self.grid) * len(self.grid[0])) * 2) - 4
+            if self.configs.pacgum > size:
+                self.score += size * self.pacgum_points
+            else:
+                self.score += self.configs.pacgum * self.pacgum_points
             self._init_level()
         elif event.key == pygame.K_F3:
             self.freeze = not self.freeze

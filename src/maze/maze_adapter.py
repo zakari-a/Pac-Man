@@ -28,7 +28,7 @@ class MazeAdapter():
         )
         self.grid: list[list[Tile]] = []
 
-    def _remove_pacgum(self, total_pacgums: int, empty_space: set) -> None:
+    def _place_pacgum(self, total_pacgums: int, empty_space: set) -> None:
         """Randomly place pacgums in the maze, ensuring
         they do not overlap with spawn or super pacgum tiles."""
         coords = list(empty_space)
@@ -92,5 +92,5 @@ class MazeAdapter():
 
         for corner in corners:
             empty_space.remove(corner)
-        self._remove_pacgum(total_pacgums, set(empty_space))
+        self._place_pacgum(total_pacgums, set(empty_space))
         return self.grid

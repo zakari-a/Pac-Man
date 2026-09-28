@@ -11,7 +11,7 @@ try:
     else:
         configs.load_config(sys.argv[1])
 
-except ConfigFileError as e:
+except (ConfigFileError, Exception) as e:
     print(e)
     sys.exit(1)
 

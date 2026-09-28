@@ -46,7 +46,6 @@ message — the game will never crash with a raw traceback due to a bad config.
 - [Breadth-First Search overview](https://en.wikipedia.org/wiki/Breadth-first_search) — used as the basis for ghost pathfinding.
 - Classic Pac-Man ghost AI write-ups (Blinky/Pinky/Inky/Clyde targeting behavior) — used as inspiration for the four ghost personalities.
 - 42 `A-Maze-ing` project subject — interface used to generate the underlying maze.
-- [Pac-Man Wiki](https://pacman.fandom.com/wiki/Pac-Man_Wiki) — reference for original game mechanics, scoring, and behavior.
 - [Pac-man assets](https://checkpointcafe.itch.io/pacman-practice-assets) — sprites used for the game.
 
 
