@@ -250,7 +250,7 @@ class Pacman(Mouvements):
             None
         """
         c_time = pygame.time.get_ticks()
-        if c_time - self.super_time >= 50000:
+        if c_time - self.super_time >= 8000:
             self.super = 0
 
     def check_collision(self, ghosts: list[Ghost], invincible: bool) -> tuple:
@@ -296,6 +296,7 @@ class Ghost(Mouvements):
             corner(tuple): The starting corner of the ghost.
             grid(list[list[Tile]]): The game grid.
             assets(AssetManager): The asset manager.
+            ghost_eyes(pygame.Surface): The surface for the ghost's eyes.
         Returns:
             None
         """
@@ -307,12 +308,10 @@ class Ghost(Mouvements):
         self.position = corner
         self.counter = 0
         self.direction = (0, 0)
-        self.speed = max(0.6, round(self.tile_size / 20))
+        self.speed = max(1, round(self.tile_size / 20))
         self.alive = True
         self.death_start = 0
         self.was_dead = 0
-        self.one_turn = False
-        self.arrived = 0
         self.distancetop = float('inf')
         self.eyes: pygame.Surface = ghost_eyes
 
@@ -342,14 +341,6 @@ class Ghost(Mouvements):
             return
         self.position = (move[0], move[1])
 
-    # def _valid_directions(self) -> list[tuple]:
-    #     directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
-    #     valids = []
-    #     for direction in directions:
-    #         if self._can_move(direction):
-    #             valids.append(direction)
-    #     return valids
-
     def _death_time(self) -> None:
         """Manages the ghost's death time.
         Args:
@@ -376,12 +367,10 @@ class Ghost(Mouvements):
         """
         directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
         x, y = self.position
-        if not turn or self.arrived == 0:
+        if not turn:
             reverse = (-self.direction[0], -self.direction[1])
             normal = [d for d in directions if d != reverse]
             directions = normal if normal else directions
-            # self.one_turn = 0
-        # elif frightened and self.one_turn == 1
         b_direction = directions[0]
         b_distance = float('-inf') if frightened else float('inf')
         for direction in directions:
@@ -399,15 +388,8 @@ class Ghost(Mouvements):
                     or (frightened and distance > b_distance)):
                 b_distance = distance
                 b_direction = direction
-            # elif frightened and distance > b_distance:
-            #     b_distance = distance
-            #     b_direction = direction
         if frightened:
             self.distancetop = b_distance
-        if frightened and b_distance <= 1:
-            self.arrived = 1
-        else:
-            self.arrived = 0
         return [b_direction] if b_direction else []
 
     def _choose_direction(self, dist_map: dict[tuple, int],
@@ -421,8 +403,6 @@ class Ghost(Mouvements):
         Returns:
             None
         """
-        # valids = self._valid_directions()
-        # if len(valids) > 1:
         valids = self._choose_cheapest(dist_map, turn, frightened)
         if valids:
             self.direction = valids[0]
@@ -439,7 +419,7 @@ class Ghost(Mouvements):
             self.counter += 1
             self.time = pygame.time.get_ticks()
 
-    def _update(self, pacman: Pacman, red_pos: tuple[int, int]) -> None:
+    def update(self, pacman: Pacman, red_pos: tuple[int, int]) -> None:
         """Updates the ghost's state and position based
         on the pacman's position and the distance map.
         Args:
@@ -456,12 +436,7 @@ class Ghost(Mouvements):
                 turn = False
             else:
                 turn = True if self.distancetop <= 7 else False
-                # if self.distancetop <= 4:
-                #     turn = True
-                # else:
-                #     turn = False
             self._choose_direction(dist_map, turn, frightened)
-        # self._move()
         self._move_frame()
 
     def _chase_type(self, pacman: Pacman,
@@ -501,8 +476,6 @@ class Ghost(Mouvements):
                 target_y = ry + 2 * (ref_py - ry)
                 return (target_x, target_y)
         else:
-            # return (self.base_corner[0] // self.tile_size,
-            #         self.base_corner[1] // self.tile_size)
             return (px, py)
 
     def _get_neighbours(self, position: tuple) -> list:

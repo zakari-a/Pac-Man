@@ -22,9 +22,7 @@ class Renderer:
         self.screen = screen
         self.grid = grid
         self.tile_size = assets.tile_size
-        self.font = pygame.font.SysFont(None, 28)
         self.assets = assets
-        self.p_counter = 0
         self.offset_x = 0
         self.offset_y = 0
         self.mod = len(self.assets.pacman)
@@ -148,17 +146,6 @@ class Renderer:
             pygame.display.flip()
             clock.tick(60)
 
-    # def _draw_game_over_screen(self) -> None:
-    #     font = pygame.font.SysFont(None, 50)
-    #     small_font = pygame.font.SysFont(None, 30)
-    #     text = font.render("YOU DIED", True, "red")
-    #     prompt = small_font.render(
-    #         "Press R to Restart or Q to Quit", True, "white")
-    #     w, h = self.screen.get_size()
-    #     self.screen.blit(text, (w // 2 - text.get_width() // 2, h // 2 - 40))
-    #     self.screen.blit(prompt, (w // 2 - prompt.get_width() // 2,
-    #                               h // 2 + 20))
-
     def _get_rotation(self, direction: tuple[int, int]) -> int:
         """Returns the rotation angle based on the direction of movement.
         Args:
@@ -166,13 +153,13 @@ class Renderer:
         Returns:
             int: The rotation angle.
         """
-        if direction == (1, 0):   # limen
+        if direction == (1, 0):
             return 0
-        elif direction == (0, -1):  # lfo9
+        elif direction == (0, -1):
             return 90
-        elif direction == (-1, 0):  # lisser
+        elif direction == (-1, 0):
             return 180
-        elif direction == (0, 1):   # lte7t
+        elif direction == (0, 1):
             return 270
         return 0
 
@@ -210,10 +197,8 @@ class Renderer:
             else:
                 figures = self.assets.ghosts
             if ghost.alive:
-                ghost._update(pacman, red_pos)
-                if freeze:
-                    ghost._move_frame()
-                else:
+                ghost.update(pacman, red_pos)
+                if not freeze:
                     ghost._move()
                 if not frightened:
                     scaled_ghosts = pygame.transform.scale(
