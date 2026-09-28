@@ -115,7 +115,7 @@ class Config:
             h = item.get("height")
             if not isinstance(w, int) or not isinstance(h, int):
                 return None
-            if w < 5 or h < 5 or w > 30 or h > 30:
+            if w < 5 or h < 5 or w > 25 or h > 25:
                 return None
             levels.append(Level(width=w, height=h))
         return levels
@@ -153,9 +153,10 @@ class Config:
 
             expected = type(DEFAULT_CONFIG[key])
             if type(value) is expected:
-                if key in POSITIVE_FIELDS and expected is int and value <= 0:
+                if key in POSITIVE_FIELDS and expected is int \
+                        and (value <= 0 or value > 1000):
                     print(f"-Warning: value for {key} "
-                          "in invalid, using default")
+                          f"in invalid (0 < {key} <=1000), using default")
                     valid[key] = DEFAULT_CONFIG[key]
                     continue
                 valid[key] = value

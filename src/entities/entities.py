@@ -250,7 +250,7 @@ class Pacman(Mouvements):
             None
         """
         c_time = pygame.time.get_ticks()
-        if c_time - self.super_time >= 8000:
+        if c_time - self.super_time >= 10000:
             self.super = 0
 
     def check_collision(self, ghosts: list[Ghost], invincible: bool) -> tuple:
@@ -350,10 +350,16 @@ class Ghost(Mouvements):
         """
         if not self.alive:
             c_time = pygame.time.get_ticks()
-            if c_time - self.death_start >= 6000:
+            if c_time - self.death_start >= 5000:
                 self.alive = True
 
     def _valid_directions(self) -> list[tuple]:
+        """Gets the valid directions for the turn
+            Args:
+                None
+            Returns:
+                List[tuple]: the valid coordinates.
+            """
         directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
         valids = []
         for direction in directions:
@@ -377,7 +383,6 @@ class Ghost(Mouvements):
         directions = self._valid_directions()
         if len(directions) == 1:
             turn = False
-        # directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
         x, y = self.position
         if not turn:
             reverse = (-self.direction[0], -self.direction[1])
@@ -447,7 +452,7 @@ class Ghost(Mouvements):
             if not frightened:
                 turn = False
             else:
-                turn = True if self.distancetop <= 7 else False
+                turn = True if self.distancetop <= 4 else False
             self._choose_direction(dist_map, turn, frightened)
         self._move_frame()
 

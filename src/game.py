@@ -418,61 +418,61 @@ class Game():
 
     def run(self) -> None:
         """Run the main event, update, and rendering loop."""
-        while self.running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
+        try:
+            while self.running:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.running = False
+                    if self.game_state == GameState.MENU:
+                        self._handle_menu_input(event)
+                    if self.game_state == GameState.PLAYING:
+                        self._handle_play_input(event)
+                    if self.game_state == GameState.PAUSED:
+                        self._handle_pause_input(event)
+                    if self.game_state == GameState.INSTRUCTIONS:
+                        self._handle_inst_input(event)
+                    if self.game_state == GameState.HIGHSCORES:
+                        self._handle_hs_input(event)
+                    if self.game_state == GameState.FINISHED:
+                        self._handle_score_input(event)
+
                 if self.game_state == GameState.MENU:
-                    self._handle_menu_input(event)
-                if self.game_state == GameState.PLAYING:
-                    self._handle_play_input(event)
-                if self.game_state == GameState.PAUSED:
-                    self._handle_pause_input(event)
-                if self.game_state == GameState.INSTRUCTIONS:
-                    self._handle_inst_input(event)
-                if self.game_state == GameState.HIGHSCORES:
-                    self._handle_hs_input(event)
-                if self.game_state == GameState.FINISHED:
-                    self._handle_score_input(event)
+                    self.menu.run()
 
-            if self.game_state == GameState.MENU:
-                self.menu.run()
+                elif self.game_state == GameState.PLAYING:
+                    self._play()
 
-            elif self.game_state == GameState.PLAYING:
-                self._play()
+                elif self.game_state == GameState.HIGHSCORES:
+                    self.screen.blit(self.hs.background, (0, 0))
+                    self.hs.run()
 
-            elif self.game_state == GameState.HIGHSCORES:
-                self.screen.blit(self.hs.background, (0, 0))
-                self.hs.run()
+                elif self.game_state == GameState.INSTRUCTIONS:
+                    self.screen.blit(self.inst.background, (0, 0))
+                    self.inst.run()
 
-            elif self.game_state == GameState.INSTRUCTIONS:
-                self.screen.blit(self.inst.background, (0, 0))
-                self.inst.run()
+                elif self.game_state == GameState.EXIT:
+                    self.running = False
 
-            elif self.game_state == GameState.EXIT:
-                self.running = False
+                elif self.game_state == GameState.PAUSED:
+                    self.renderer._draw_maze()
+                    self.renderer._draw_pacman(self.pacman)
+                    self.renderer._draw_ghosts(
+                        self.ghosts, self.pacman,
+                        self.ghosts[0].position, self.freeze)
+                    self.pause.run()
 
-            elif self.game_state == GameState.PAUSED:
-                self.renderer._draw_maze()
-                self.renderer._draw_pacman(self.pacman)
-                self.renderer._draw_ghosts(
-                    self.ghosts, self.pacman,
-                    self.ghosts[0].position, self.freeze)
-                self.pause.run()
+                elif self.game_state == GameState.GAME_OVER:
+                    if self.banners._game_over(self.done):
+                        self.game_state = GameState.FINISHED
 
-            elif self.game_state == GameState.GAME_OVER:
-                if self.banners._game_over(self.done):
-                    self.game_state = GameState.FINISHED
+                elif self.game_state == GameState.VICTORY:
+                    if self.banners._victory(self.score):
+                        self.game_state = GameState.PLAYING
 
-            elif self.game_state == GameState.VICTORY:
-                if self.banners._victory(self.score):
-                    self.game_state = GameState.PLAYING
-
-            elif self.game_state == GameState.FINISHED:
-                self.screen.blit(self.hs.background, (0, 0))
-                self.hs.enter_name(self.done, self.score)
-            try:
+                elif self.game_state == GameState.FINISHED:
+                    self.screen.blit(self.hs.background, (0, 0))
+                    self.hs.enter_name(self.done, self.score)
                 self.dt = self.clock.tick(60) / 1000
-            except KeyboardInterrupt:
-                sys.exit(1)
-            pygame.display.flip()
+                pygame.display.flip()
+        except KeyboardInterrupt:
+            sys.exit(1)
