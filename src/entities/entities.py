@@ -353,6 +353,15 @@ class Ghost(Mouvements):
             if c_time - self.death_start >= 6000:
                 self.alive = True
 
+    def _valid_directions(self) -> list[tuple]:
+        directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+        valids = []
+        for direction in directions:
+            if isinstance(self._can_move(direction, self.position, self.speed,
+                                         self.tile_size, self.grid), tuple):
+                valids.append(direction)
+        return valids
+
     def _choose_cheapest(self,
                          dist_map: dict[tuple, int],
                          turn: bool, frightened: bool) -> list:
@@ -365,7 +374,10 @@ class Ghost(Mouvements):
         Returns:
             list: The list of chosen directions.
         """
-        directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+        directions = self._valid_directions()
+        if len(directions) == 1:
+            turn = False
+        # directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
         x, y = self.position
         if not turn:
             reverse = (-self.direction[0], -self.direction[1])

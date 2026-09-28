@@ -72,6 +72,7 @@ crashes on a malformed config.
 | `seed` | Seed used to generate the first level's maze | `42` |
 | `level_max_time` | Time limit per level, in seconds | `90` |
 | `levels` | List of `{width, height}` objects, one per level | 10 levels, 15×15 to 24×24 |
+| `pacgums` | Total number of pacgums present within the map | `42` |
 
 ## Highscore
 

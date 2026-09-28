@@ -85,9 +85,6 @@ class Game():
 
         self.menu = Menu(self.assets, self.screen)
         self.inst = Instructions(self.assets, self.screen)
-        self.hs = HighScores(
-            self.assets, self.screen, self.highscores,
-            self.configs.highscore_filename)
         self.pause = Paused(self.assets, self.screen)
 
         # cheat mode
@@ -133,6 +130,9 @@ class Game():
 
         self.renderer = Renderer(self.screen, self.assets, self.grid)
         self.banners = Banners(self.assets, self.screen, self.renderer)
+        self.hs = HighScores(
+            self.assets, self.screen, self.highscores,
+            self.configs.highscore_filename)
         self.renderer._set_offset()
         self.corners = self.renderer._get_corners()
 
