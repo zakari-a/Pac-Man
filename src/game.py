@@ -5,7 +5,7 @@ except ModuleNotFoundError as e:
     exit(1)
 import sys
 import json
-
+import time
 from src.maze.maze_adapter import MazeAdapter, Tile
 from src.assets_manager.assetmanager import AssetManager, GhostType
 from src.renderer.renderer import Renderer
@@ -211,7 +211,7 @@ class Game():
         self.pacman._set_pacmouvements(event.key)
         if event.key == pygame.K_ESCAPE:
             self.paused = True
-            self.paused_timer = pygame.time.get_ticks()
+            self.paused_timer = time.time()
             self.game_state = GameState.PAUSED
 
         elif event.key == pygame.K_F1:
@@ -269,7 +269,7 @@ class Game():
         elif event.key == pygame.K_RETURN:
             self.game_state = self.pause.paused_list[self.pause.index][1]
             self.paused = False
-            self.paused_timer = pygame.time.get_ticks() - self.paused_timer
+            self.paused_timer = time.time() - self.paused_timer
             if self.game_state == GameState.MENU:
                 # self.level_num = 0
                 # self.score = 0
@@ -428,7 +428,7 @@ class Game():
                     found.position = found.base_corner
                     found.counter = 0
                     found.was_dead = 1
-                    found.death_start = pygame.time.get_ticks()
+                    found.death_start = time.time()
                 self.score += self.configs.points_per_ghost
 
             else:

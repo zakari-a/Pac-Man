@@ -6,7 +6,7 @@ from collections import deque
 from typing import Any
 from enum import Enum
 import pygame
-
+import time
 
 class PacState(Enum):
     """It represents the pacman state."""
@@ -349,8 +349,8 @@ class Ghost(Mouvements):
             None
         """
         if not self.alive:
-            c_time = pygame.time.get_ticks()
-            if c_time - self.death_start - paused_time >= 5000:
+            c_time = time.time()
+            if c_time - self.death_start - paused_time  >= 5:
                 self.alive = True
 
     def _valid_directions(self) -> list[tuple]:
