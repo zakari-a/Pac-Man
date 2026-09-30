@@ -21,6 +21,6 @@ CONFIGURATION
 The game runs with default settings out of the box - just launch it,
 no setup required.
 
-if the game didn't have permission run in TERMINAL:
+if the game didn't have permission, run in TERMINAL:
 
 chmod +x PacMan

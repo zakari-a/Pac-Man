@@ -6,10 +6,12 @@ MYPY = venv/bin/mypy
 
 install:
 	python3 -m venv venv
+	$(PIP) install --upgrade pip
 	$(PIP) install -r libs/requirements
 
 run:
 	$(PY) pac-man.py config.json
+
 
 debug:
 	$(PY) -m pdb pac-man.py config.json
@@ -26,3 +28,5 @@ clean:
 lint:
 	$(FALKE) src
 	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs src
+
+.PHONY: install run debug package clean lint

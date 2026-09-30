@@ -1,4 +1,8 @@
-import pygame
+try:
+    import pygame
+except ModuleNotFoundError as e:
+    print(e)
+    exit(1)
 import sys
 import json
 
@@ -58,6 +62,7 @@ class Game():
         self.last_move_time = 0
         self.move_cooldown = 50
         self.last_check = 0
+        self.paused_timer = 0
 
         # highscors variables
         try:
@@ -101,6 +106,7 @@ class Game():
             self.done = True
             return
 
+        self.paused = False
         self.wideview = False
         self.invincible = False
         self.freeze = False
@@ -149,6 +155,15 @@ class Game():
         for ghost in self.ghosts:
             ghost._reset()
 
+    def _reset(self) -> None:
+        if self.game_state == GameState.FINISHED:
+            self.hs._update_highsocores(self.score)
+        self.lives = self.configs.lives
+        self.level_num = 0
+        self.score = 0
+        self.paused_timer = 0
+        self.done = False
+
     def _handle_menu_input(self, event: pygame.event.Event) -> None:
         """Handle keyboard input while the main menu is active."""
         now = pygame.time.get_ticks()
@@ -177,7 +192,8 @@ class Game():
 
         self.pacman._set_pacmouvements(event.key)
         if event.key == pygame.K_ESCAPE:
-            self.freeze = True
+            self.paused = True
+            self.paused_timer = pygame.time.get_ticks()
             self.game_state = GameState.PAUSED
 
         elif event.key == pygame.K_F1:
@@ -234,11 +250,13 @@ class Game():
 
         elif event.key == pygame.K_RETURN:
             self.game_state = self.pause.paused_list[self.pause.index][1]
-            self.freeze = False
+            self.paused = False
+            self.paused_timer = pygame.time.get_ticks() - self.paused_timer
             if self.game_state == GameState.MENU:
-                self.level_num = 0
-                self.score = 0
-                self.lives = self.configs.lives
+                # self.level_num = 0
+                # self.score = 0
+                # self.lives = self.configs.lives
+                self._reset()
 
     def _handle_hs_input(self, event: pygame.event.Event) -> None:
         """Handle keyboard input on the high-scores screen."""
@@ -280,11 +298,13 @@ class Game():
             self.hs.name_index += 1
 
         elif event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
+            self._reset()
             self.game_state = GameState.MENU
-            self.hs._update_highsocores(self.score)
-            self.level_num = 0
-            self.score = 0
-            self.done = False
+            # self.hs._update_highsocores(self.score)
+            # self.lives = self.configs.lives
+            # self.level_num = 0
+            # self.score = 0
+            # self.done = False
 
     def _check_empty_grid(self) -> bool:
         """Check whether all Pac-Gums have been collected."""
@@ -372,7 +392,7 @@ class Game():
             self._init_level()
         if self.pacman.mode == PacState.ALIVE:
             for ghost in self.ghosts:
-                ghost._update_state(self.pacman)
+                ghost._update_state(self.pacman, self.paused_timer)
             collision, pos = self.pacman.check_collision(
                 self.ghosts, self.invincible)
             if collision == 1:
@@ -395,14 +415,14 @@ class Game():
 
             else:
                 self.pacman._update_pacposition()
-                self.score += self.pacman.eat(self.ghosts,
+                self.score += self.pacman.eat(self.ghosts, self.paused,
                                               self.pacgum_points,
                                               self.supergum_points)
-                self.pacman._go_normal()
+                self.pacman._go_normal(self.paused_timer)
             self.renderer._draw_pacman(self.pacman)
             self.renderer._draw_ghosts(
                 self.ghosts, self.pacman,
-                self.ghosts[0].position, self.freeze)
+                self.ghosts[0].position, self.freeze, self.paused)
 
         elif self.pacman.mode == PacState.DYING:
             self.renderer._draw_pacman_death(self.pacman)
@@ -458,7 +478,7 @@ class Game():
                     self.renderer._draw_pacman(self.pacman)
                     self.renderer._draw_ghosts(
                         self.ghosts, self.pacman,
-                        self.ghosts[0].position, self.freeze)
+                        self.ghosts[0].position, self.freeze, self.paused)
                     self.pause.run()
 
                 elif self.game_state == GameState.GAME_OVER:
@@ -470,7 +490,6 @@ class Game():
                         self.game_state = GameState.PLAYING
 
                 elif self.game_state == GameState.FINISHED:
-                    self.screen.blit(self.hs.background, (0, 0))
                     self.hs.enter_name(self.done, self.score)
                 self.dt = self.clock.tick(60) / 1000
                 pygame.display.flip()

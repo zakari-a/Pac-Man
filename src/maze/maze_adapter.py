@@ -1,4 +1,8 @@
-from mazegenerator import MazeGenerator
+try:
+    from mazegenerator import MazeGenerator
+except ModuleNotFoundError as e:
+    print(e)
+    exit(1)
 from enum import Enum
 import random
 

@@ -212,7 +212,7 @@ class Pacman(Mouvements):
         self.time = pygame.time.get_ticks()
         return 1
 
-    def eat(self, ghosts: list[Ghost],
+    def eat(self, ghosts: list[Ghost], paused: bool,
             pacgum_points: int, supergum_points: int) -> int:
         """Checks if the pacman is on a pacgum or
         super pacgum tile and eats it.
@@ -242,7 +242,7 @@ class Pacman(Mouvements):
             self.grid[gy][gx] = Tile.EMPTY
         return score
 
-    def _go_normal(self) -> None:
+    def _go_normal(self, paused_time: float) -> None:
         """Sets the pacman to normal state after super state ends.
         Args:
             None
@@ -250,7 +250,7 @@ class Pacman(Mouvements):
             None
         """
         c_time = pygame.time.get_ticks()
-        if c_time - self.super_time >= 10000:
+        if c_time - self.super_time - paused_time >= 10000:
             self.super = 0
 
     def check_collision(self, ghosts: list[Ghost], invincible: bool) -> tuple:
@@ -341,7 +341,7 @@ class Ghost(Mouvements):
             return
         self.position = (move[0], move[1])
 
-    def _death_time(self) -> None:
+    def _death_time(self, paused_time: float) -> None:
         """Manages the ghost's death time.
         Args:
             None
@@ -350,7 +350,7 @@ class Ghost(Mouvements):
         """
         if not self.alive:
             c_time = pygame.time.get_ticks()
-            if c_time - self.death_start >= 5000:
+            if c_time - self.death_start - paused_time >= 5000:
                 self.alive = True
 
     def _valid_directions(self) -> list[tuple]:
@@ -550,13 +550,13 @@ class Ghost(Mouvements):
                     result[(neighbour)] = distance + 1
         return result
 
-    def _update_state(self, pacman: Pacman) -> None:
+    def _update_state(self, pacman: Pacman, paused_time: float) -> None:
         """Updates the ghost's state based on the pacman's state.
         Args:
             pacman (Pacman): The pacman entity.
         Returns:
             None
         """
-        self._death_time()
+        self._death_time(paused_time)
         if not pacman.super:
             self.was_dead = 0

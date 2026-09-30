@@ -242,6 +242,7 @@ class HighScores():
 
     def enter_name(self, done: bool, score: int) -> None:
         """Handle the name entry process for high scores."""
+        self.screen.blit(self.background, (0, 0))
         box_rect = pygame.Rect(self.width * 0.02, self.height * 0.02,
                                self.width * 0.96, self.height * 0.8)
         overlay = pygame.Surface(
@@ -251,14 +252,19 @@ class HighScores():
         self.screen.blit(overlay, (self.width * 0.02, self.height * 0.02))
         pygame.draw.rect(
             self.screen, "darkblue", box_rect, width=10, border_radius=50)
-        message = "WELL DONE!" if done else "UNLUCKY"
+        message = "UNLUCKY!"
+        msg_width = self.width * 0.39
+        if done:
+            message = "WELL DONE!"
+            msg_width = self.width * 0.37
+
         label_surface1 = self.font3.render(message, True, "white")
         label_surface2 = self.font1.render("ENTER YOUR NAME", True, "white")
         label_surface3 = self.font1.render("YOUR SCORE IS:", True, "white")
         label_surface4 = self.font3.render(f"{score}", True, "yellow")
         label_rect = label_surface4.get_rect(center=box_rect.center)
         self.screen.blit(
-            label_surface1, (self.width * 0.40, self.height * 0.15))
+            label_surface1, (msg_width, self.height * 0.15))
         self.screen.blit(
             label_surface3, (self.width * 0.44, self.height * 0.25))
         self.screen.blit(label_surface4, label_rect)

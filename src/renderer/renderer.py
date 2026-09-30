@@ -178,7 +178,8 @@ class Renderer:
         return corners
 
     def _draw_ghosts(self, ghosts: list[Ghost], pacman: Pacman,
-                     red_pos: tuple[int, int], freeze: bool) -> None:
+                     red_pos: tuple[int, int], freeze: bool,
+                     paused: bool) -> None:
         """Draws the ghosts on the screen based
         on their current state and position.
         Args:
@@ -198,7 +199,7 @@ class Renderer:
                 figures = self.assets.ghosts
             if ghost.alive:
                 ghost.update(pacman, red_pos)
-                if not freeze:
+                if not freeze and not paused:
                     ghost._move()
                 if not frightened:
                     scaled_ghosts = pygame.transform.scale(
