@@ -10,7 +10,6 @@ from src.maze.maze_adapter import MazeAdapter, Tile
 from src.assets_manager.assetmanager import AssetManager, GhostType
 from src.renderer.renderer import Renderer
 from src.config.config import Config
-from src.config.paths import highscore_path
 from src.entities.entities import Pacman, Ghost, PacState
 from src.game_view.ui import Menu, Instructions, HighScores, GameState, Paused
 from src.game_view.banners import Banners
@@ -65,18 +64,8 @@ class Game():
         self.paused_timer = 0
 
         # highscors variables
-        try:
-            with open(highscore_path(self.configs.highscore_filename),
-                      "r") as f:
-                self.highscores = json.load(f)
-        except (json.JSONDecodeError, FileNotFoundError):
-            self.highscores = []
-        except PermissionError:
-            print(
-                f"Needs permission to open"
-                f"'{self.configs.highscore_filename}'")
-            exit(1)
-        self.h_s = self.highscores[0]["score"] if self.highscores else 0
+        self.highscores: list[dict[str, int]] = []
+        self._load_highscores()
 
         # player variables
         self.game_state: GameState = GameState.MENU
@@ -97,6 +86,35 @@ class Game():
         self.freeze = False
         self.super_speed = False
         self.stop_time = False
+
+    def _load_highscores(self) -> None:
+        """Load and parse high scores from a JSON file."""
+        try:
+            with open(self.configs.highscore_filename,
+                      "r") as f:
+                hs = json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError):
+            hs = []
+        except PermissionError:
+            print(
+                f"Needs permission to open"
+                f"'{self.configs.highscore_filename}'")
+            exit(1)
+        for scores in hs:
+            keys = [key for key in scores.keys()]
+            if keys != ["name", "score"]:
+                continue
+            if len(scores["name"]) == 0 or len(scores["name"]) > 10:
+                continue
+            if scores["score"] < 0:
+                continue
+            self.highscores.append(scores)
+
+        print(self.highscores)
+        if len(self.highscores) != 0:
+            self.highscores = sorted(self.highscores,
+                                     key=lambda x: x["score"], reverse=True)
+            self.highscores = self.highscores[:10]
 
     def _init_level(self) -> None:
         """Initialize the maze, entities, assets,
