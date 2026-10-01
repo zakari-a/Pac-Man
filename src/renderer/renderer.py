@@ -192,7 +192,7 @@ class Renderer:
         """
         eye_offset = self.tile_size // 4
         for ghost in ghosts:
-            frightened = pacman.super and (ghost.was_dead == 0)
+            frightened = pacman.super and (ghost.was_dead == 0) and (pacman.switch % 2 == 0)
             if frightened:
                 figures: Any = self.assets.scared_ghost
             else:
@@ -201,6 +201,7 @@ class Renderer:
                 ghost.update(pacman, red_pos)
                 if not freeze and not paused:
                     ghost._move()
+                
                 if not frightened:
                     scaled_ghosts = pygame.transform.scale(
                         figures[ghost.type][ghost.counter % 4],

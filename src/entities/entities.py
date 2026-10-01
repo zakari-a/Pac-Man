@@ -108,6 +108,7 @@ class Pacman(Mouvements):
         self.super = 0
         self.super_time = 0
         self.mode = PacState.ALIVE
+        self.switch = 0
 
     def _reset(self) -> None:
         """Resets the pacman entity to its initial state.
@@ -122,6 +123,7 @@ class Pacman(Mouvements):
         self.next_direction = (0, 0)
         self.state = self.assets.pacman
         self.position = self.spawn
+        self.switch = 0
 
     def _find_spawn(self) -> None:
         """Finds the spawn position of the pacman in the maze grid.
@@ -233,7 +235,7 @@ class Pacman(Mouvements):
         if char in [Tile.PACGUM, Tile.SUPER_PACGUM]:
             if char == Tile.SUPER_PACGUM:
                 self.super = 1
-                self.super_time = pygame.time.get_ticks()
+                self.super_time = time.time()
                 score += supergum_points
                 for ghost in ghosts:
                     ghost.was_dead = 0
@@ -249,9 +251,13 @@ class Pacman(Mouvements):
         Returns:
             None
         """
-        c_time = pygame.time.get_ticks()
-        if c_time - self.super_time - paused_time >= 100000:
+        c_time = time.time()
+        remaining = c_time - self.super_time - paused_time
+        if remaining >= 7:
+            self.switch += 1
+        if remaining >= 10:
             self.super = 0
+            self.switch = 0
 
     def check_collision(self, ghosts: list[Ghost], invincible: bool) -> tuple:
         """Checks if the pacman collides with any ghost.
@@ -313,6 +319,7 @@ class Ghost(Mouvements):
         self.death_start = 0
         self.was_dead = 0
         self.distancetop = float('inf')
+        self.one_turn = False
         self.eyes: pygame.Surface = ghost_eyes
 
     def _reset(self) -> None:
@@ -447,20 +454,28 @@ class Ghost(Mouvements):
         if x % self.tile_size == 0 and y % self.tile_size == 0:
             dist_map = self.pathfinder(pacman, red_pos)
             if not frightened:
+                self.one_turn = False
                 turn = False
             else:
-                # turn = False
-                px = pacman.position[0] // self.tile_size
-                py = pacman.position[1] // self.tile_size
-                gx = x // self.tile_size
-                gy = y // self.tile_size
-                p_pos = dist_map.get((px, py))
-                g_pos = dist_map.get((gx, gy))
-                print(p_pos, g_pos)
-                if p_pos and g_pos:
-                    turn = True if p_pos - g_pos <= 4 else False
-                else:
-                    turn = False
+                turn = not self.one_turn
+                if turn:
+                    self.one_turn = True
+                # px = pacman.position[0] // self.tile_size
+                # py = pacman.position[1] // self.tile_size
+                # gx = x // self.tile_size
+                # gy = y // self.tile_size
+                # p_pos = dist_map.get((px, py))
+                # g_pos = dist_map.get((gx, gy))
+                # print(p_pos, g_pos)
+                # if p_pos and g_pos:
+                #     if abs(p_pos - g_pos) <= 8:
+                #             turn = True
+                #     if pacman.direction != self.direction:
+                #         turn = True if p_pos - g_pos <= 4 else False
+                #     else:
+                #         turn = False
+                # else:
+                #     turn = False
             self._choose_direction(dist_map, turn, frightened)
         self._move_frame()
 
