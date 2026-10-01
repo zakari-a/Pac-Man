@@ -250,7 +250,7 @@ class Pacman(Mouvements):
             None
         """
         c_time = pygame.time.get_ticks()
-        if c_time - self.super_time - paused_time >= 10000:
+        if c_time - self.super_time - paused_time >= 100000:
             self.super = 0
 
     def check_collision(self, ghosts: list[Ghost], invincible: bool) -> tuple:
@@ -389,7 +389,7 @@ class Ghost(Mouvements):
             normal = [d for d in directions if d != reverse]
             directions = normal if normal else directions
         b_direction = directions[0]
-        b_distance = float('-inf') if frightened else float('inf')
+        b_distance = float('inf')
         for direction in directions:
             if isinstance(self._can_move(direction, self.position, self.speed,
                                          self.tile_size, self.grid), bool):
@@ -397,16 +397,13 @@ class Ghost(Mouvements):
             dx, dy = direction
             nx = (x + dx * self.tile_size) // self.tile_size
             ny = (y + dy * self.tile_size) // self.tile_size
-            if frightened:
-                distance = dist_map.get((nx, ny), float('-inf'))
-            else:
-                distance = dist_map.get((nx, ny), float('inf'))
-            if ((not frightened and distance < b_distance)
-                    or (frightened and distance > b_distance)):
+            distance = dist_map.get((nx, ny), float('inf'))
+            if distance < b_distance:
                 b_distance = distance
                 b_direction = direction
-        if frightened:
-            self.distancetop = b_distance
+            # if frightened and 
+        # if frightened:
+        #     self.distancetop = b_distance
         return [b_direction] if b_direction else []
 
     def _choose_direction(self, dist_map: dict[tuple, int],
@@ -452,9 +449,48 @@ class Ghost(Mouvements):
             if not frightened:
                 turn = False
             else:
-                turn = True if self.distancetop <= 4 else False
+                # turn = False
+                px = pacman.position[0] // self.tile_size
+                py = pacman.position[1] // self.tile_size
+                gx = x // self.tile_size
+                gy = y // self.tile_size
+                p_pos = dist_map.get((px, py))
+                g_pos = dist_map.get((gx, gy))
+                print(p_pos, g_pos)
+                if p_pos and g_pos:
+                    turn = True if p_pos - g_pos <= 4 else False
+                else:
+                    turn = False
             self._choose_direction(dist_map, turn, frightened)
         self._move_frame()
+
+    def get_furtherest_point(self, pacman):
+        px = pacman.position[0] // self.tile_size
+        py = pacman.position[1] // self.tile_size
+        start_point = (px, py)
+        # print(start_point)
+        queue = [start_point]
+        result = {start_point: 0}
+        visited = set()
+        while len(queue) > 0:
+            chosen = queue.pop(0)
+            visited.add(chosen)
+            neighbours = self._get_neighbours(chosen)
+            for n in neighbours:
+                if n not in visited:
+                    result[n] = result[chosen] + 1
+                    queue.append(n)
+        # print(result)
+        # exit()
+        biggest = float('-inf')
+        chosen = None
+        for k, v in result.items():
+            if v > biggest:
+                biggest = v
+                chosen = k
+        # print(chosen, biggest)
+        # exit()
+        return chosen
 
     def _chase_type(self, pacman: Pacman,
                     red_pos: tuple[int, int]) -> tuple[int, int]:
@@ -493,7 +529,7 @@ class Ghost(Mouvements):
                 target_y = ry + 2 * (ref_py - ry)
                 return (target_x, target_y)
         else:
-            return (px, py)
+            return self.get_furtherest_point(pacman)
 
     def _get_neighbours(self, position: tuple) -> list:
         """Returns the valid neighbouring positions
