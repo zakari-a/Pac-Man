@@ -271,9 +271,6 @@ class Game():
             self.paused = False
             self.paused_timer = time.time() - self.paused_timer
             if self.game_state == GameState.MENU:
-                # self.level_num = 0
-                # self.score = 0
-                # self.lives = self.configs.lives
                 self._reset()
 
     def _handle_hs_input(self, event: pygame.event.Event) -> None:
@@ -318,11 +315,20 @@ class Game():
         elif event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
             self._reset()
             self.game_state = GameState.MENU
-            # self.hs._update_highsocores(self.score)
-            # self.lives = self.configs.lives
-            # self.level_num = 0
-            # self.score = 0
-            # self.done = False
+
+    def _handle_input(self, event: pygame.event.Event) -> None:
+        if self.game_state == GameState.MENU:
+            self._handle_menu_input(event)
+        if self.game_state == GameState.PLAYING:
+            self._handle_play_input(event)
+        if self.game_state == GameState.PAUSED:
+            self._handle_pause_input(event)
+        if self.game_state == GameState.INSTRUCTIONS:
+            self._handle_inst_input(event)
+        if self.game_state == GameState.HIGHSCORES:
+            self._handle_hs_input(event)
+        if self.game_state == GameState.FINISHED:
+            self._handle_score_input(event)
 
     def _check_empty_grid(self) -> bool:
         """Check whether all Pac-Gums have been collected."""
@@ -461,18 +467,7 @@ class Game():
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         self.running = False
-                    if self.game_state == GameState.MENU:
-                        self._handle_menu_input(event)
-                    if self.game_state == GameState.PLAYING:
-                        self._handle_play_input(event)
-                    if self.game_state == GameState.PAUSED:
-                        self._handle_pause_input(event)
-                    if self.game_state == GameState.INSTRUCTIONS:
-                        self._handle_inst_input(event)
-                    if self.game_state == GameState.HIGHSCORES:
-                        self._handle_hs_input(event)
-                    if self.game_state == GameState.FINISHED:
-                        self._handle_score_input(event)
+                    self._handle_input(event)
 
                 if self.game_state == GameState.MENU:
                     self.menu.run()
@@ -481,11 +476,9 @@ class Game():
                     self._play()
 
                 elif self.game_state == GameState.HIGHSCORES:
-                    self.screen.blit(self.hs.background, (0, 0))
                     self.hs.run()
 
                 elif self.game_state == GameState.INSTRUCTIONS:
-                    self.screen.blit(self.inst.background, (0, 0))
                     self.inst.run()
 
                 elif self.game_state == GameState.EXIT:

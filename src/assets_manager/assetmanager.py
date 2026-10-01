@@ -178,7 +178,7 @@ class AssetManager():
             pygame.Rect(pygame.Rect(16, 16, 16, 16)).copy()
         )
 
-    def _load_images(self) -> None:
+    def _load_banners(self) -> None:
         """Load additional images such as victory, game over,
         and finish banners from the spritesheet."""
         try:
@@ -188,15 +188,15 @@ class AssetManager():
                 pygame.Rect(pygame.Rect(40, 325, 1450, 345)).copy()
                 )
             spritesheet = pygame.image.load(
-                resource_path("assets/banners.png")).convert_alpha()
+                resource_path("assets/banners2.png")).convert_alpha()
         except FileNotFoundError as e:
             print(e)
             sys.exit(1)
         self.game_over = spritesheet.subsurface(
-            pygame.Rect(pygame.Rect(80, 140, 1380, 340)).copy()
+            pygame.Rect(pygame.Rect(64, 120, 1400, 360)).copy()
             )
         self.finish = spritesheet.subsurface(
-            pygame.Rect(pygame.Rect(80, 560, 1380, 340)).copy()
+            pygame.Rect(pygame.Rect(64, 560, 1400, 360)).copy()
             )
 
     def load(self) -> None:
@@ -205,4 +205,4 @@ class AssetManager():
         self._load_pacman()
         self._load_ghosts()
         self._load_items()
-        self._load_images()
+        self._load_banners()

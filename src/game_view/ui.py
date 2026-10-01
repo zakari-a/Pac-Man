@@ -157,6 +157,7 @@ class Instructions():
 
     def run(self) -> None:
         """Render the instructions screen on the display."""
+        self.screen.blit(self.background, (0, 0))
         label_surface = self.font3.render("INSTRUCTION", True, "yellow")
         label_surface2 = self.font3.render("___________", True, "darkblue")
         box_rect = pygame.Rect(self.width * 0.02, self.height * 0.02,
