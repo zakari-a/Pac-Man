@@ -8,6 +8,7 @@ from enum import Enum
 import pygame
 import time
 
+
 class PacState(Enum):
     """It represents the pacman state."""
     DYING = 0
@@ -106,7 +107,7 @@ class Pacman(Mouvements):
         self.counter = 0
         self.death_start = 0
         self.super = 0
-        self.super_time = 0
+        self.super_time = 0.0
         self.mode = PacState.ALIVE
         self.switch = 0
 
@@ -316,9 +317,8 @@ class Ghost(Mouvements):
         self.direction = (0, 0)
         self.speed = max(1, round(self.tile_size / 20))
         self.alive = True
-        self.death_start = 0
+        self.death_start = 0.0
         self.was_dead = 0
-        self.distancetop = float('inf')
         self.one_turn = False
         self.eyes: pygame.Surface = ghost_eyes
 
@@ -357,7 +357,7 @@ class Ghost(Mouvements):
         """
         if not self.alive:
             c_time = time.time()
-            if c_time - self.death_start - paused_time  >= 5:
+            if c_time - self.death_start - paused_time >= 5:
                 self.alive = True
 
     def _valid_directions(self) -> list[tuple]:
@@ -408,9 +408,6 @@ class Ghost(Mouvements):
             if distance < b_distance:
                 b_distance = distance
                 b_direction = direction
-            # if frightened and 
-        # if frightened:
-        #     self.distancetop = b_distance
         return [b_direction] if b_direction else []
 
     def _choose_direction(self, dist_map: dict[tuple, int],
@@ -452,7 +449,7 @@ class Ghost(Mouvements):
         x, y = self.position
         frightened = pacman.super and (self.was_dead == 0)
         if x % self.tile_size == 0 and y % self.tile_size == 0:
-            dist_map = self.pathfinder(pacman, red_pos)
+            dist_map = self._pathfinder(pacman, red_pos)
             if not frightened:
                 self.one_turn = False
                 turn = False
@@ -460,30 +457,19 @@ class Ghost(Mouvements):
                 turn = not self.one_turn
                 if turn:
                     self.one_turn = True
-                # px = pacman.position[0] // self.tile_size
-                # py = pacman.position[1] // self.tile_size
-                # gx = x // self.tile_size
-                # gy = y // self.tile_size
-                # p_pos = dist_map.get((px, py))
-                # g_pos = dist_map.get((gx, gy))
-                # print(p_pos, g_pos)
-                # if p_pos and g_pos:
-                #     if abs(p_pos - g_pos) <= 8:
-                #             turn = True
-                #     if pacman.direction != self.direction:
-                #         turn = True if p_pos - g_pos <= 4 else False
-                #     else:
-                #         turn = False
-                # else:
-                #     turn = False
             self._choose_direction(dist_map, turn, frightened)
         self._move_frame()
 
-    def get_furtherest_point(self, pacman):
+    def _get_furtherest_point(self, pacman: Pacman) -> tuple[int, int]:
+        """Calculates the furtherst point in the map from the pacman.
+        Args:
+            pacman (Pacman): The pacman entity.
+        Returns:
+            tuple[int, int]: The target position.
+        """
         px = pacman.position[0] // self.tile_size
         py = pacman.position[1] // self.tile_size
         start_point = (px, py)
-        # print(start_point)
         queue = [start_point]
         result = {start_point: 0}
         visited = set()
@@ -495,16 +481,12 @@ class Ghost(Mouvements):
                 if n not in visited:
                     result[n] = result[chosen] + 1
                     queue.append(n)
-        # print(result)
-        # exit()
         biggest = float('-inf')
-        chosen = None
+        chosen = (px, py)
         for k, v in result.items():
             if v > biggest:
                 biggest = v
                 chosen = k
-        # print(chosen, biggest)
-        # exit()
         return chosen
 
     def _chase_type(self, pacman: Pacman,
@@ -544,7 +526,7 @@ class Ghost(Mouvements):
                 target_y = ry + 2 * (ref_py - ry)
                 return (target_x, target_y)
         else:
-            return self.get_furtherest_point(pacman)
+            return self._get_furtherest_point(pacman)
 
     def _get_neighbours(self, position: tuple) -> list:
         """Returns the valid neighbouring positions
@@ -569,8 +551,8 @@ class Ghost(Mouvements):
             valids.append((x + 1, y))
         return valids
 
-    def pathfinder(self, pacman: Pacman,
-                   red_pos: tuple[int, int]) -> dict[tuple, int]:
+    def _pathfinder(self, pacman: Pacman,
+                    red_pos: tuple[int, int]) -> dict[tuple, int]:
         """Generates a distance map for the ghost to chase
         the pacman based on its type and the maze grid.
         Args:

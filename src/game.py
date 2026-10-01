@@ -61,7 +61,7 @@ class Game():
         self.last_move_time = 0
         self.move_cooldown = 50
         self.last_check = 0
-        self.paused_timer = 0
+        self.paused_timer = 0.0
 
         # highscors variables
         self.highscores: list[dict[str, int]] = []
@@ -179,7 +179,7 @@ class Game():
         self.lives = self.configs.lives
         self.level_num = 0
         self.score = 0
-        self.paused_timer = 0
+        self.paused_timer = 0.0
         self.done = False
 
     def _handle_menu_input(self, event: pygame.event.Event) -> None:
