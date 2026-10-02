@@ -237,6 +237,7 @@ class Pacman(Mouvements):
             if char == Tile.SUPER_PACGUM:
                 self.super = 1
                 self.super_time = time.time()
+                self.switch = 0
                 score += supergum_points
                 for ghost in ghosts:
                     ghost.was_dead = 0
