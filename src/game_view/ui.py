@@ -237,9 +237,11 @@ class HighScores():
         self.scores.append({"name": name, "score": score})
         self.scores = sorted(
             self.scores, key=lambda value: value["score"], reverse=True)[:10]
-
-        with open(self.file, "w") as f:
-            json.dump(self.scores, f, indent=2)
+        try:
+            with open(self.file, "w") as f:
+                json.dump(self.scores, f, indent=2)
+        except PermissionError:
+            print(f"Can't write and save in '{self.file}'")
 
     def enter_name(self, done: bool, score: int) -> None:
         """Handle the name entry process for high scores."""

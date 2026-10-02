@@ -97,20 +97,22 @@ class Game():
             hs = []
         except PermissionError:
             print(
-                f"Needs permission to open"
+                f"-Error: Needs permission to open and read "
                 f"'{self.configs.highscore_filename}'")
             exit(1)
         for scores in hs:
             keys = [key for key in scores.keys()]
             if keys != ["name", "score"]:
                 continue
-            if len(scores["name"]) == 0 or len(scores["name"]) > 10:
+            name, score = scores["name"], scores["score"]
+            if not isinstance(name, str) or not isinstance(score, int):
                 continue
-            if scores["score"] < 0:
+            if len(name) == 0 or len(name) > 10:
+                continue
+            if score < 0:
                 continue
             self.highscores.append(scores)
 
-        print(self.highscores)
         if len(self.highscores) != 0:
             self.highscores = sorted(self.highscores,
                                      key=lambda x: x["score"], reverse=True)
@@ -220,10 +222,13 @@ class Game():
         elif event.key == pygame.K_F2:
             self.level_num += 1
             size = ((len(self.grid) * len(self.grid[0])) * 2) - 4
+            total_sup = 4 * self.configs.points_per_super_pacgum
             if self.configs.pacgum > size:
                 self.score += size * self.pacgum_points
+                self.score += total_sup
             else:
                 self.score += self.configs.pacgum * self.pacgum_points
+                self.score += total_sup
             self._init_level()
         elif event.key == pygame.K_F3:
             self.freeze = not self.freeze

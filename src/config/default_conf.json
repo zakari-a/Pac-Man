@@ -1,5 +1,5 @@
 {
-    "highscore_filename": "highscores.json",
+    "highscore_filename": "Highscores.json",
     "seed": 42,
     "lives": 3,
     "pacgum": 1000,
@@ -18,7 +18,7 @@
         },
         {
             "width": 18,
-            "height": 18
+            "height": 13
         },
         {
             "width": 5,
@@ -38,15 +38,15 @@
         },
         {
             "width": 21,
-            "height": 21
+            "height": 8
+        },
+        {
+            "width": 25,
+            "height": 25
         },
         {
             "width": 17,
-            "height": 17
-        },
-        {
-            "width": 17,
-            "height": 11
+            "height": 14
         }
     ]
 

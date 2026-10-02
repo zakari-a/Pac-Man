@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
 import json
+import os
 
 
 class ConfigFileError(Exception):
@@ -15,8 +16,11 @@ class Level:
     height: int
 
 
+MAX_CONFIG_SIZE = 200 * 1024
+
+
 DEFAULT_CONFIG: dict[str, Any] = {
-    "highscore_filename": "highscores.json",
+    "highscore_filename": "Highscores.json",
     "seed": 42,
     "lives": 3,
     "pacgum": 42,
@@ -25,16 +29,16 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "points_per_super_pacgum": 50,
     "points_per_ghost": 200,
     "levels":    [
+        Level(width=10, height=10),
+        Level(width=12, height=18),
+        Level(width=15, height=15),
         Level(width=5, height=5),
-        Level(width=24, height=24),
-        Level(width=18, height=18),
-        Level(width=20, height=20),
-        Level(width=23, height=23),
+        Level(width=13, height=13),
         Level(width=15, height=15),
         Level(width=19, height=19),
-        Level(width=21, height=21),
+        Level(width=21, height=8),
         Level(width=17, height=17),
-        Level(width=22, height=22)
+        Level(width=17, height=14)
     ]
 }
 
@@ -84,6 +88,10 @@ class Config:
         if not filepath.lower().endswith('.json'):
             raise ConfigFileError(
                 f"-Error: Config file should end with '.json': {filepath}")
+        if not os.path.isfile(filepath):
+            raise ConfigFileError("The argument should be a file")
+        if os.path.getsize(filepath) > MAX_CONFIG_SIZE:
+            raise ConfigFileError("Configuration file is too large")
 
         try:
             with open(filepath, "r") as file:
@@ -124,13 +132,26 @@ class Config:
         """Load and validate the configuration from a JSON file,
         applying default values for missing or invalid entries."""
         data = self.load_json(filepath)
+
+        if isinstance(data, list) and len(data) == 1:
+            data = data[0]
+        elif isinstance(data, list) and len(data) == 0:
+            data = {}
+        elif isinstance(data, list) and len(data) > 1:
+            raise ConfigFileError("-Error: config list has more than 1 dict")
+
+        found: set = set()
+
         for key, value in DEFAULT_CONFIG.items():
             if key not in data:
                 print(f"-Can't find {key}, using default")
                 data[key] = value
+                found.add(key)
 
         valid: dict[str, Any] = data.copy()
         for key, value in data.items():
+            if key in found:
+                continue
             if key not in DEFAULT_CONFIG:
                 print(f"-Unknown configuration key '{key}', ignoring.")
                 valid.pop(key)

@@ -42,10 +42,10 @@ class AssetManager():
                 resource_path("assets/PressStart2P-Regular.ttf"), 35)
             self.background1 = pygame.image.load(
                 resource_path(
-                    "assets/menu_backgroud.png")).convert_alpha()
+                    "assets/menu_background.jpg")).convert_alpha()
             self.background2 = pygame.image.load(
                 resource_path(
-                    "assets/commands_background.jpeg")).convert_alpha()
+                    "assets/inst_background.jpg")).convert_alpha()
         except FileNotFoundError as e:
             print(e)
             sys.exit(1)
@@ -188,7 +188,7 @@ class AssetManager():
                 pygame.Rect(pygame.Rect(40, 325, 1450, 345)).copy()
                 )
             spritesheet = pygame.image.load(
-                resource_path("assets/banners2.png")).convert_alpha()
+                resource_path("assets/banners.png")).convert_alpha()
         except FileNotFoundError as e:
             print(e)
             sys.exit(1)
