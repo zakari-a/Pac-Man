@@ -95,6 +95,9 @@ class Game():
                 hs = json.load(f)
         except (json.JSONDecodeError, FileNotFoundError):
             hs = []
+        except OSError as e:
+            print(e)
+            exit(1)
         except PermissionError:
             print(
                 f"-Error: Needs permission to open and read "
@@ -176,6 +179,7 @@ class Game():
             ghost._reset()
 
     def _reset(self) -> None:
+        """Resets game variables if the game is back to Menu"""
         if self.game_state == GameState.FINISHED:
             self.hs._update_highsocores(self.score)
         self.lives = self.configs.lives

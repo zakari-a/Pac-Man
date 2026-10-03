@@ -92,7 +92,7 @@ class Config:
             raise ConfigFileError("The argument should be a file")
         if os.path.getsize(file_name) > MAX_CONFIG_SIZE:
             raise ConfigFileError(
-                "Configuration file is"
+                "Configuration file is "
                 "too large (MAX: 200KB)")
 
         try:
@@ -110,6 +110,9 @@ class Config:
             configs: dict = json.loads(clean_text)
         except json.JSONDecodeError as e:
             raise ConfigFileError(f"-Error: invalid JSON in config ({e})")
+        except OSError as e:
+            raise ConfigFileError(e)
+            
         return configs
 
     def validate_levels(self, value: Any) -> list[Level] | None:
