@@ -63,15 +63,15 @@ class AssetManager():
             print("Cant find 'wall_assets.png' in assets")
             sys.exit(1)
         bases = {
-            "wall":       spritesheet.subsurface(
+            "wall": spritesheet.subsurface(
                 pygame.Rect(64, 48, 16, 16)).copy(),
-            "angle":      spritesheet.subsurface(
+            "angle": spritesheet.subsurface(
                 pygame.Rect(48, 48, 16, 16)).copy(),
-            "end_wall":   spritesheet.subsurface(
+            "end_wall": spritesheet.subsurface(
                 pygame.Rect(176, 64, 16, 16)).copy(),
-            "3_ways":     spritesheet.subsurface(
+            "3_ways": spritesheet.subsurface(
                 pygame.Rect(208, 48, 16, 16)).copy(),
-            "4_ways":     spritesheet.subsurface(
+            "4_ways": spritesheet.subsurface(
                 pygame.Rect(144, 176, 16, 16)).copy(),
             "alone_wall": spritesheet.subsurface(
                 pygame.Rect(128, 192, 16, 16)).copy(),

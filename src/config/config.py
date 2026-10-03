@@ -82,23 +82,25 @@ class Config:
             clean.append(line)
         return "\n".join(clean)
 
-    def load_json(self, filepath: str) -> dict[str, Any]:
+    def load_json(self, file_name: str) -> dict[str, Any]:
         """Load and parse a JSON configuration file,
         removing comments and validating its structure."""
-        if not filepath.lower().endswith('.json'):
+        if not file_name.lower().endswith('.json'):
             raise ConfigFileError(
-                f"-Error: Config file should end with '.json': {filepath}")
-        if not os.path.isfile(filepath):
+                f"-Error: Config file should end with '.json': {file_name}")
+        if not os.path.isfile(file_name):
             raise ConfigFileError("The argument should be a file")
-        if os.path.getsize(filepath) > MAX_CONFIG_SIZE:
-            raise ConfigFileError("Configuration file is too large")
+        if os.path.getsize(file_name) > MAX_CONFIG_SIZE:
+            raise ConfigFileError(
+                "Configuration file is"
+                "too large (MAX: 200KB)")
 
         try:
-            with open(filepath, "r") as file:
+            with open(file_name, "r") as file:
                 text = file.read()
         except FileNotFoundError:
             raise ConfigFileError(
-                f"-Error: Can't find the file provided: {filepath}")
+                f"-Error: Can't find the file provided: {file_name}")
         except PermissionError:
             raise ConfigFileError(
                 "-Error: There is no permission to read the provided file")
@@ -128,17 +130,13 @@ class Config:
             levels.append(Level(width=w, height=h))
         return levels
 
-    def load_config(self, filepath: str) -> None:
+    def load_config(self, file_name: str) -> None:
         """Load and validate the configuration from a JSON file,
         applying default values for missing or invalid entries."""
-        data = self.load_json(filepath)
+        data = self.load_json(file_name)
 
-        if isinstance(data, list) and len(data) == 1:
-            data = data[0]
-        elif isinstance(data, list) and len(data) == 0:
-            data = {}
-        elif isinstance(data, list) and len(data) > 1:
-            raise ConfigFileError("-Error: config list has more than 1 dict")
+        if isinstance(data, list):
+            raise ConfigFileError("-Error: configs should be a dict")
 
         found: set = set()
 
