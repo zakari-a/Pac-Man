@@ -110,9 +110,9 @@ class Config:
             configs: dict = json.loads(clean_text)
         except json.JSONDecodeError as e:
             raise ConfigFileError(f"-Error: invalid JSON in config ({e})")
-        except OSError as e:
+        except (OSError, ValueError) as e:
             raise ConfigFileError(e)
-            
+
         return configs
 
     def validate_levels(self, value: Any) -> list[Level] | None:
@@ -175,12 +175,17 @@ class Config:
 
             expected = type(DEFAULT_CONFIG[key])
             if type(value) is expected:
-                if key in POSITIVE_FIELDS and expected is int \
-                        and (value <= 0 or value > 1000):
-                    print(f"-Warning: value for {key} "
-                          f"in invalid (0 < {key} <=1000), using default")
-                    valid[key] = DEFAULT_CONFIG[key]
-                    continue
+                if key in POSITIVE_FIELDS and expected is int:
+                    if key == "lives" and (value <= 0 or value > 10):
+                        print(f"-Warning: value for {key} "
+                              f"in invalid (0 < {key} <= 10), using default")
+                        valid[key] = DEFAULT_CONFIG[key]
+                        continue
+                    elif key != "lives" and (value <= 0 or value > 1000):
+                        print(f"-Warning: value for {key} in "
+                              f"invalid (0 < {key} <= 1000), using default")
+                        valid[key] = DEFAULT_CONFIG[key]
+                        continue
                 valid[key] = value
             else:
                 print(f"-Warning: invalid type for {key}, using default")

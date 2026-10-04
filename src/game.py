@@ -29,17 +29,8 @@ class Game():
         self.width, self.height = self.screen.get_size()
         self.running = True
         self.clock = pygame.time.Clock()
-        self.frame_tick = 0
-        self.counter = 0
         self.dt = 0.0
 
-        # ui
-        self.assets: AssetManager
-        self.menu: Menu
-        self.inst: Instructions
-        self.hs: HighScores
-        self.pause: Paused
-        self.banners: Banners
 
         # maze and render variables
         self.adapter: MazeAdapter
@@ -51,7 +42,6 @@ class Game():
 
         # levels variables
         self.level_num = 0
-        self.max_level = 10
         self.levels = self.configs.levels
         self.done = False
         self.level_timer: float = self.configs.level_max_time
@@ -60,7 +50,6 @@ class Game():
         # key variables
         self.last_move_time = 0
         self.move_cooldown = 50
-        self.last_check = 0
         self.paused_timer = 0.0
 
         # highscors variables
@@ -77,6 +66,10 @@ class Game():
         self.seed: int = 0
         self._init_level()
 
+        # ui
+        self.assets: AssetManager
+        self.hs: HighScores
+        self.banners: Banners
         self.menu = Menu(self.assets, self.screen)
         self.inst = Instructions(self.assets, self.screen)
         self.pause = Paused(self.assets, self.screen)

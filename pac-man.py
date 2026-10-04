@@ -9,7 +9,7 @@ try:
     meipass = getattr(sys, "_MEIPASS", None)
     if meipass is not None:
         configs.load_config(resource_path("src/config/default_conf.json"))
-    
+
     else:
         if len(sys.argv) != 2:
             raise ConfigFileError("The program must take only 1 argument.")

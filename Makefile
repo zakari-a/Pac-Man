@@ -26,7 +26,7 @@ clean:
 	rm -rf __pycache__ */__pycache__ */*/__pycache__ .mypy_cache venv
 
 lint:
-	$(FALKE) src
-	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs src
+	$(FALKE) src pac-man.py
+	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs src pac-man.py
 
 .PHONY: install run debug package clean lint
