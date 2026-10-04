@@ -104,6 +104,13 @@ class Game():
                 f"-Error: Needs permission to open and read "
                 f"'{self.configs.highscore_filename}'")
             exit(1)
+
+        if not (isinstance(hs, list)
+                and all(isinstance(item, dict) for item in hs)):
+            print(
+                f"-Error: The json should hold a List of Dicts "
+                f"in '{self.configs.highscore_filename}'")
+            exit(1)
         for scores in hs:
             keys = [key for key in scores.keys()]
             if keys != ["name", "score"]:
