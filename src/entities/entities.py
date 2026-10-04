@@ -241,6 +241,9 @@ class Pacman(Mouvements):
                 score += supergum_points
                 for ghost in ghosts:
                     ghost.was_dead = 0
+                    ghost.arrived = 0
+                    ghost.arrived_tiles = 0
+                    ghost.modkira = []
             elif char == Tile.PACGUM:
                 score += pacgum_points
             self.grid[gy][gx] = Tile.EMPTY
@@ -322,6 +325,10 @@ class Ghost(Mouvements):
         self.was_dead = 0
         self.one_turn = False
         self.eyes: pygame.Surface = ghost_eyes
+        self.close = float('inf')
+        self.arrived = 0
+        self.modkira = []
+        self.arrived_tiles = 0
 
     def _reset(self) -> None:
         """Resets the ghost entity to its initial state.
@@ -378,12 +385,13 @@ class Ghost(Mouvements):
 
     def _choose_cheapest(self,
                          dist_map: dict[tuple, int],
-                         turn: bool) -> list:
+                         turn: bool, frightened: bool) -> list:
         """Chooses the cheapest direction for the ghost
         to move based on the distance map.
         Args:
             dist_map (dict[tuple, int]): The distance map.
             turn (bool): Whether the ghost is turning.
+            frightened (bool): Whether the ghost is frightened.
         Returns:
             list: The list of chosen directions.
         """
@@ -396,7 +404,10 @@ class Ghost(Mouvements):
             normal = [d for d in directions if d != reverse]
             directions = normal if normal else directions
         b_direction = directions[0]
-        b_distance = float('inf')
+        if not frightened:
+            b_distance = float('inf')
+        if frightened:
+            b_distance = float('inf') if self.arrived == 1 else float('-inf')
         for direction in directions:
             if isinstance(self._can_move(direction, self.position, self.speed,
                                          self.tile_size, self.grid), bool):
@@ -404,23 +415,44 @@ class Ghost(Mouvements):
             dx, dy = direction
             nx = (x + dx * self.tile_size) // self.tile_size
             ny = (y + dy * self.tile_size) // self.tile_size
-            distance = dist_map.get((nx, ny), float('inf'))
-            if distance < b_distance:
+            if not frightened:
+                distance = dist_map.get((nx, ny), float('inf'))
+            if frightened:
+                if self.arrived == 1:
+                    distance = dist_map.get((nx, ny), float('inf'))
+                else:
+                    distance = dist_map.get((nx, ny), float('-inf'))
+            if (not frightened and distance < b_distance) or (frightened and self.arrived == 0 and distance > b_distance) or (frightened and self.arrived == 1 and distance < b_distance):
                 b_distance = distance
                 b_direction = direction
+        if frightened and self.arrived == 1:
+            self.arrived_tiles -= 1
+            if self.arrived_tiles <= 0:
+                self.arrived = 0
+                self.modkira = []
+        if frightened:
+            self.close = b_distance
+            if len(self.modkira) == 10:
+                if len(set(self.modkira)) <= 5:
+                    self.arrived_tiles = 20
+                    self.arrived = 1
+            if len(self.modkira) >= 10:
+                self.modkira = []
+            self.modkira.append(self.position)
         return [b_direction] if b_direction else []
 
     def _choose_direction(self, dist_map: dict[tuple, int],
-                          turn: bool) -> None:
+                          turn: bool, frightened: bool) -> None:
         """Chooses the direction for the ghost
         to move based on the distance map.
         Args:
             dist_map (dict[tuple, int]): The distance map.
             turn (bool): Whether the ghost is turning.
+            frightened (bool): Whether the ghost is frightened.
         Returns:
             None
         """
-        valids = self._choose_cheapest(dist_map, turn)
+        valids = self._choose_cheapest(dist_map, turn, frightened)
         if valids:
             self.direction = valids[0]
 
@@ -449,14 +481,12 @@ class Ghost(Mouvements):
         frightened = pacman.super and (self.was_dead == 0)
         if x % self.tile_size == 0 and y % self.tile_size == 0:
             dist_map = self._pathfinder(pacman, red_pos)
-            if not frightened:
-                self.one_turn = False
+            turn = False
+            if frightened and self.close <= 4:
+                turn = True
+            if self.arrived == 1:
                 turn = False
-            else:
-                turn = not self.one_turn
-                if turn:
-                    self.one_turn = True
-            self._choose_direction(dist_map, turn)
+            self._choose_direction(dist_map, turn, frightened)
         self._move_frame()
 
     def _get_furtherest_point(self, pacman: Pacman) -> tuple[int, int]:
@@ -525,7 +555,9 @@ class Ghost(Mouvements):
                 target_y = ry + 2 * (ref_py - ry)
                 return (target_x, target_y)
         else:
-            return self._get_furtherest_point(pacman)
+            if self.arrived == 1:
+                return self._get_furtherest_point(pacman)
+            return (px, py)
 
     def _get_neighbours(self, position: tuple) -> list:
         """Returns the valid neighbouring positions
@@ -592,3 +624,6 @@ class Ghost(Mouvements):
         self._death_time(paused_time)
         if not pacman.super:
             self.was_dead = 0
+            self.arrived = 0
+            self.arrived_tiles = 0
+            self.modkira = []
