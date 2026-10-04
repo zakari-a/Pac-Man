@@ -378,13 +378,12 @@ class Ghost(Mouvements):
 
     def _choose_cheapest(self,
                          dist_map: dict[tuple, int],
-                         turn: bool, frightened: bool) -> list:
+                         turn: bool) -> list:
         """Chooses the cheapest direction for the ghost
         to move based on the distance map.
         Args:
             dist_map (dict[tuple, int]): The distance map.
             turn (bool): Whether the ghost is turning.
-            frightened (bool): Whether the ghost is frightened.
         Returns:
             list: The list of chosen directions.
         """
@@ -412,17 +411,16 @@ class Ghost(Mouvements):
         return [b_direction] if b_direction else []
 
     def _choose_direction(self, dist_map: dict[tuple, int],
-                          turn: bool, frightened: Any) -> None:
+                          turn: bool) -> None:
         """Chooses the direction for the ghost
         to move based on the distance map.
         Args:
             dist_map (dict[tuple, int]): The distance map.
             turn (bool): Whether the ghost is turning.
-            frightened (bool): Whether the ghost is frightened.
         Returns:
             None
         """
-        valids = self._choose_cheapest(dist_map, turn, frightened)
+        valids = self._choose_cheapest(dist_map, turn)
         if valids:
             self.direction = valids[0]
 
@@ -458,7 +456,7 @@ class Ghost(Mouvements):
                 turn = not self.one_turn
                 if turn:
                     self.one_turn = True
-            self._choose_direction(dist_map, turn, frightened)
+            self._choose_direction(dist_map, turn)
         self._move_frame()
 
     def _get_furtherest_point(self, pacman: Pacman) -> tuple[int, int]:
@@ -476,11 +474,11 @@ class Ghost(Mouvements):
         visited = set()
         while len(queue) > 0:
             chosen = queue.pop(0)
-            visited.add(chosen)
             neighbours = self._get_neighbours(chosen)
             for n in neighbours:
                 if n not in visited:
                     result[n] = result[chosen] + 1
+                    visited.add(n)
                     queue.append(n)
         biggest = float('-inf')
         chosen = (px, py)

@@ -15,7 +15,7 @@ try:
             raise ConfigFileError("The program must take only 1 argument.")
         configs.load_config(sys.argv[1])
 
-except (ConfigFileError) as e:
+except (ConfigFileError, Exception) as e:
     print(e)
     sys.exit(1)
 

@@ -103,9 +103,9 @@ class Game():
             if (not isinstance(name, str) or not isinstance(score, int)
                     or isinstance(score, bool)):
                 continue
-            if len(name) == 0 or len(name) > 10:
+            if len(name) == 0 or len(name) > 10 or not name.isalnum():
                 continue
-            if score < 0:
+            if score < 0 or score > 9999999:
                 continue
             self.highscores.append(scores)
 
@@ -359,7 +359,7 @@ class Game():
                 start_x = self.width * 0.82
                 start_y = self.height * spacing
             color = "white"
-            if i == 7:
+            if i in [6, 7] :
                 color = "red" if self.stop_time else "white"
             label_surfacee = self.assets.font_20.render(text, True, color)
             self.screen.blit(label_surfacee, (start_x, start_y))
@@ -382,7 +382,10 @@ class Game():
         if not self.stop_time:
             self.level_timer -= self.dt
         for i, text in enumerate(texts):
-            label_surfacee = self.assets.font_20.render(text, True, "white")
+            color = "white"
+            if i == 1:
+                color = "red" if self.stop_time else "white"
+            label_surfacee = self.assets.font_20.render(text, True, color)
             self.screen.blit(label_surfacee, coords[i])
 
     def _invicibility_icon(self) -> None:
