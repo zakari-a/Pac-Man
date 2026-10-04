@@ -243,7 +243,7 @@ class Pacman(Mouvements):
                     ghost.was_dead = 0
                     ghost.arrived = 0
                     ghost.arrived_tiles = 0
-                    ghost.modkira = []
+                    ghost.cache = []
             elif char == Tile.PACGUM:
                 score += pacgum_points
             self.grid[gy][gx] = Tile.EMPTY
@@ -327,7 +327,7 @@ class Ghost(Mouvements):
         self.eyes: pygame.Surface = ghost_eyes
         self.close = float('inf')
         self.arrived = 0
-        self.modkira: list = []
+        self.cache: list = []
         self.arrived_tiles = 0
 
     def _reset(self) -> None:
@@ -433,16 +433,16 @@ class Ghost(Mouvements):
             self.arrived_tiles -= 1
             if self.arrived_tiles <= 0:
                 self.arrived = 0
-                self.modkira = []
+                self.cache = []
         if frightened:
             self.close = b_distance
-            if len(self.modkira) == 10:
-                if len(set(self.modkira)) <= 5:
+            if len(self.cache) == 10:
+                if len(set(self.cache)) <= 5:
                     self.arrived_tiles = 20
                     self.arrived = 1
-            if len(self.modkira) >= 10:
-                self.modkira = []
-            self.modkira.append(self.position)
+            if len(self.cache) >= 10:
+                self.cache = []
+            self.cache.append(self.position)
         return [b_direction] if b_direction else []
 
     def _choose_direction(self, dist_map: dict[tuple, int],
@@ -630,4 +630,4 @@ class Ghost(Mouvements):
             self.was_dead = 0
             self.arrived = 0
             self.arrived_tiles = 0
-            self.modkira = []
+            self.cache = []
