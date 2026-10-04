@@ -16,7 +16,7 @@ class Level:
     height: int
 
 
-MAX_CONFIG_SIZE = 200 * 1024
+MAX_FILE_SIZE = 200 * 1024
 
 
 DEFAULT_CONFIG: dict[str, Any] = {
@@ -44,6 +44,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
 
 
 POSITIVE_FIELDS = {
+    "seed",
     "lives",
     "pacgum",
     "points_per_pacgum",
@@ -89,8 +90,8 @@ class Config:
             raise ConfigFileError(
                 f"-Error: Config file should end with '.json': {file_name}")
         if not os.path.isfile(file_name):
-            raise ConfigFileError("The argument should be a file")
-        if os.path.getsize(file_name) > MAX_CONFIG_SIZE:
+            raise ConfigFileError("The argument should be a valid file")
+        if os.path.getsize(file_name) > MAX_FILE_SIZE:
             raise ConfigFileError(
                 "Configuration file is "
                 "too large (MAX: 200KB)")
@@ -167,11 +168,23 @@ class Config:
                 valid[key] = levels
                 continue
             if key == "highscore_filename":
+                if not isinstance(value, str):
+                    print("-Warning : invalid highscore filename "
+                          "(shoulb be a string), using default")
+                    valid[key] = DEFAULT_CONFIG[key]
+                    continue
                 if value.count(".") != 1 or not value.endswith(".json"):
                     print("-Warning : invalid highscore filename "
                           "(ex..'.json'), using default")
                     valid[key] = DEFAULT_CONFIG[key]
                     continue
+                for c in value:
+                    if not c.isalnum() and c not in ["_", "-", "."]:
+                        print(
+                            "-Warning : invalid highscore filename, "
+                            "use (alphanum, and ('_', '-')), using default")
+                        valid[key] = DEFAULT_CONFIG[key]
+                        continue
 
             expected = type(DEFAULT_CONFIG[key])
             if type(value) is expected:
@@ -181,7 +194,7 @@ class Config:
                               f"in invalid (0 < {key} <= 10), using default")
                         valid[key] = DEFAULT_CONFIG[key]
                         continue
-                    elif key != "lives" and (value <= 0 or value > 1000):
+                    elif key != "lives" and (value < 0 or value > 1000):
                         print(f"-Warning: value for {key} in "
                               f"invalid (0 < {key} <= 1000), using default")
                         valid[key] = DEFAULT_CONFIG[key]

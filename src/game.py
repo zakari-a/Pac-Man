@@ -4,6 +4,7 @@ except ModuleNotFoundError as e:
     print(e)
     exit(1)
 import sys
+import os
 import json
 import time
 from src.maze.maze_adapter import MazeAdapter, Tile
@@ -90,27 +91,33 @@ class Game():
 
     def _load_highscores(self) -> None:
         """Load and parse high scores from a JSON file."""
+
         try:
             with open(self.configs.highscore_filename,
                       "r") as f:
                 hs = json.load(f)
+            if os.path.getsize(self.configs.highscore_filename) > 200 * 1024:
+                print(
+                    "-Error: Highscore file is "
+                    "too large (MAX: 200KB)")
+                sys.exit(1)
         except (json.JSONDecodeError, FileNotFoundError):
             hs = []
-        except OSError as e:
-            print(e)
-            exit(1)
         except PermissionError:
             print(
                 f"-Error: Needs permission to open and read "
                 f"'{self.configs.highscore_filename}'")
-            exit(1)
+            sys.exit(1)
+        except OSError as e:
+            print(f"Error: an OS error occured ({e})")
+            sys.exit(1)
 
         if not (isinstance(hs, list)
                 and all(isinstance(item, dict) for item in hs)):
             print(
                 f"-Error: The json should hold a List of Dicts "
                 f"in '{self.configs.highscore_filename}'")
-            exit(1)
+            sys.exit(1)
         for scores in hs:
             keys = [key for key in scores.keys()]
             if keys != ["name", "score"]:
@@ -272,6 +279,7 @@ class Game():
                 return
             self.last_move_time = now
             self.game_state = self.inst.buttons[self.inst.index][1]
+            self.inst.index = 0
         elif event.key == pygame.K_ESCAPE:
             self.game_state = GameState.MENU
 
@@ -288,6 +296,7 @@ class Game():
             self.game_state = self.pause.paused_list[self.pause.index][1]
             self.paused = False
             self.paused_timer = time.time() - self.paused_timer
+            self.pause.index = 0
             if self.game_state == GameState.MENU:
                 self._reset()
 
@@ -307,6 +316,7 @@ class Game():
                 return
             self.last_move_time = now
             self.game_state = self.hs.buttons[self.hs.index][1]
+            self.hs.index = 0
         elif event.key == pygame.K_ESCAPE:
             self.game_state = GameState.MENU
 
