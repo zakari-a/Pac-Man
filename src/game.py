@@ -471,7 +471,7 @@ class Game():
 
             else:
                 self.pacman._update_pacposition()
-                self.score += self.pacman.eat(self.ghosts, self.paused,
+                self.score += self.pacman.eat(self.ghosts,
                                               self.pacgum_points,
                                               self.supergum_points)
                 self.pacman._go_normal(self.paused_timer)

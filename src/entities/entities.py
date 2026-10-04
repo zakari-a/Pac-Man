@@ -215,7 +215,7 @@ class Pacman(Mouvements):
         self.time = pygame.time.get_ticks()
         return 1
 
-    def eat(self, ghosts: list[Ghost], paused: bool,
+    def eat(self, ghosts: list[Ghost],
             pacgum_points: int, supergum_points: int) -> int:
         """Checks if the pacman is on a pacgum or
         super pacgum tile and eats it.
@@ -327,7 +327,7 @@ class Ghost(Mouvements):
         self.eyes: pygame.Surface = ghost_eyes
         self.close = float('inf')
         self.arrived = 0
-        self.modkira = []
+        self.modkira: list = []
         self.arrived_tiles = 0
 
     def _reset(self) -> None:
@@ -422,7 +422,11 @@ class Ghost(Mouvements):
                     distance = dist_map.get((nx, ny), float('inf'))
                 else:
                     distance = dist_map.get((nx, ny), float('-inf'))
-            if (not frightened and distance < b_distance) or (frightened and self.arrived == 0 and distance > b_distance) or (frightened and self.arrived == 1 and distance < b_distance):
+            if (not frightened and distance < b_distance) or \
+                (frightened and self.arrived == 0
+                    and distance > b_distance) or \
+                    (frightened and self.arrived == 1
+                        and distance < b_distance):
                 b_distance = distance
                 b_direction = direction
         if frightened and self.arrived == 1:
@@ -442,7 +446,7 @@ class Ghost(Mouvements):
         return [b_direction] if b_direction else []
 
     def _choose_direction(self, dist_map: dict[tuple, int],
-                          turn: bool, frightened: bool) -> None:
+                          turn: bool, frightened: Any) -> None:
         """Chooses the direction for the ghost
         to move based on the distance map.
         Args:
