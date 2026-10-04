@@ -501,7 +501,7 @@ class Ghost(Mouvements):
         start_point = (px, py)
         queue = [start_point]
         result = {start_point: 0}
-        visited = set()
+        visited = set(queue)
         while len(queue) > 0:
             chosen = queue.pop(0)
             neighbours = self._get_neighbours(chosen)
