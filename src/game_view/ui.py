@@ -197,6 +197,18 @@ class Instructions():
             label_rect = label_surfacee.get_rect(center=box_rect.center)
             self.screen.blit(label_surfacee, label_rect)
             x = self.width * 0.78
+        labels = [
+            ("Rules: Collect Pac-Gums to score points, avoid ghosts, "
+                "clear all Pac-Gums to complete the level"),
+            "and finish before the timer runs out."]
+        x = self.width * 0.1
+        y = self.height * 0.73
+        for text in labels:
+            label_surface = self.font1.render(text, True, "white")
+            self.screen.blit(
+                label_surface, (x, y))
+            x = self.width * 0.155
+            y = self.height * 0.76
 
 
 class HighScores():

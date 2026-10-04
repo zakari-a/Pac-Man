@@ -359,7 +359,7 @@ class Game():
                 start_x = self.width * 0.82
                 start_y = self.height * spacing
             color = "white"
-            if i in [6, 7] :
+            if i in [6, 7]:
                 color = "red" if self.stop_time else "white"
             label_surfacee = self.assets.font_20.render(text, True, color)
             self.screen.blit(label_surfacee, (start_x, start_y))
