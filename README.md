@@ -76,7 +76,7 @@ crashes on a malformed config.
 
 ## Highscore
 
-Highscores are stored persistently in a JSON file on disk (`highscores.json`), loaded once at game start and rewritten every 
+Highscores are stored persistently in a JSON file on project (`highscores.json`), loaded once at game start and rewritten every 
 time a new score is saved. The system keeps only the **top 10** entries, sorted by score descending, each storing a player 
 name and score.
 We chose a flat JSON file because the requirement is small in scope (10 entries, simple read/write), and JSON keeps the format 

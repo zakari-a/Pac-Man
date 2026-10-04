@@ -130,7 +130,8 @@ class Game():
                 continue
             if score < 0 or score > 9999999:
                 continue
-            self.highscores.append(scores)
+            if scores not in self.highscores:
+                self.highscores.append(scores)
 
         if len(self.highscores) != 0:
             self.highscores = sorted(self.highscores,

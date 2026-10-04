@@ -161,7 +161,7 @@ class Config:
 
             if key == "levels":
                 levels = self.validate_levels(value)
-                if levels is None:
+                if levels is None or len(levels) > 10:
                     print("-Warning : 'levels' are invalid, using default")
                     valid[key] = DEFAULT_CONFIG[key]
                     continue
@@ -194,7 +194,7 @@ class Config:
                               f"in invalid (0 < {key} <= 10), using default")
                         valid[key] = DEFAULT_CONFIG[key]
                         continue
-                    elif key != "lives" and (value < 0 or value > 1000):
+                    elif key != "lives" and (value <= 0 or value > 1000):
                         print(f"-Warning: value for {key} in "
                               f"invalid (0 < {key} <= 1000), using default")
                         valid[key] = DEFAULT_CONFIG[key]
