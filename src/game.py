@@ -31,7 +31,6 @@ class Game():
         self.clock = pygame.time.Clock()
         self.dt = 0.0
 
-
         # maze and render variables
         self.adapter: MazeAdapter
         self.renderer: Renderer
@@ -101,7 +100,8 @@ class Game():
             if keys != ["name", "score"]:
                 continue
             name, score = scores["name"], scores["score"]
-            if not isinstance(name, str) or not isinstance(score, int):
+            if (not isinstance(name, str) or not isinstance(score, int)
+                    or isinstance(score, bool)):
                 continue
             if len(name) == 0 or len(name) > 10:
                 continue
