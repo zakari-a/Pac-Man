@@ -79,6 +79,15 @@ class Game():
         self.super_speed = False
         self.stop_time = False
 
+    def _check_hs_name(self, name: str) -> bool:
+        """Checks the hs name if its valid"""
+        if len(name) == 0 or len(name) > 10:
+            return False
+        for c in name:
+            if not c.isalnum() and c != " ":
+                return False
+        return True
+
     def _load_highscores(self) -> None:
         """Load and parse high scores from a JSON file."""
         try:
@@ -103,7 +112,7 @@ class Game():
             if (not isinstance(name, str) or not isinstance(score, int)
                     or isinstance(score, bool)):
                 continue
-            if len(name) == 0 or len(name) > 10 or not name.isalnum():
+            if not self._check_hs_name(name):
                 continue
             if score < 0 or score > 9999999:
                 continue
