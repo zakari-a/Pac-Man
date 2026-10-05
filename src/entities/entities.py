@@ -323,7 +323,6 @@ class Ghost(Mouvements):
         self.alive = True
         self.death_start = 0.0
         self.was_dead = 0
-        self.one_turn = False
         self.eyes: pygame.Surface = ghost_eyes
         self.close = float('inf')
         self.arrived = 0
@@ -342,6 +341,9 @@ class Ghost(Mouvements):
         self.direction = (0, 0)
         self.position = self.base_corner
         self.alive = True
+        self.arrived = 0
+        self.arrived_tiles = 0
+        self.cache = []
 
     def _move(self) -> None:
         """Moves the ghost entity based on its current direction and speed.
@@ -433,8 +435,9 @@ class Ghost(Mouvements):
             self.arrived_tiles -= 1
             if self.arrived_tiles <= 0:
                 self.arrived = 0
+                self.close = float('inf')
                 self.cache = []
-        if frightened:
+        if frightened and self.arrived == 0:
             self.close = b_distance
             if len(self.cache) == 10:
                 if len(set(self.cache)) <= 5:
