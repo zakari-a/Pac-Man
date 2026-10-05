@@ -240,7 +240,7 @@ class HighScores():
         self.name_index = 0
         self.highscore = self.scores[0]["score"] if self.scores else 0
 
-    def _update_highsocores(self, score: int) -> None:
+    def update_highsocores(self, score: int) -> None:
         """Update the high scores list with
         the new score and save it to the file."""
         name = "".join(self.name).rstrip("_")

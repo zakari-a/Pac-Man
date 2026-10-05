@@ -198,7 +198,7 @@ class Game():
     def _reset(self) -> None:
         """Resets game variables if the game is back to Menu"""
         if self.game_state == GameState.FINISHED:
-            self.hs._update_highsocores(self.score)
+            self.hs.update_highsocores(self.score)
         self.lives = self.configs.lives
         self.level_num = 0
         self.score = 0
@@ -346,6 +346,7 @@ class Game():
             self.game_state = GameState.MENU
 
     def _handle_input(self, event: pygame.event.Event) -> None:
+        """Handles keyboard input for each state"""
         if self.game_state == GameState.MENU:
             self._handle_menu_input(event)
         if self.game_state == GameState.PLAYING:
@@ -448,7 +449,7 @@ class Game():
             self._init_level()
         if self.pacman.mode == PacState.ALIVE:
             for ghost in self.ghosts:
-                ghost._update_state(self.pacman, self.paused_timer)
+                ghost.update_state(self.pacman, self.paused_timer)
             collision, pos = self.pacman.check_collision(
                 self.ghosts, self.invincible)
             if collision == 1:

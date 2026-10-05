@@ -16,6 +16,14 @@ F4  : +1 life (7 lives max)
 F5  : Increase Pac-Man's speed
 F6  : Stop time
 
+RULES
+-----
+
+- Collect all Pac-Gums and Super Pac-Gums to score points.
+- Avoid the ghosts or lose a life.
+- Complete each level before the timer runs out.
+- Get the highest score possible!
+
 CONFIGURATION
 -------------
 The game runs with default settings out of the box - just launch it,
