@@ -449,7 +449,7 @@ class Game():
             self._init_level()
         if self.pacman.mode == PacState.ALIVE:
             for ghost in self.ghosts:
-                ghost.update_state(self.pacman, self.paused_timer)
+                ghost._update_state(self.pacman, self.paused_timer)
             collision, pos = self.pacman.check_collision(
                 self.ghosts, self.invincible)
             if collision == 1:
