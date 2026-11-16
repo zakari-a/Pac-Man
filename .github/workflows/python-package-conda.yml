@@ -21,4 +21,5 @@ jobs:
 
       - name: Run type checking
         run: |
+          make install
           make lint
